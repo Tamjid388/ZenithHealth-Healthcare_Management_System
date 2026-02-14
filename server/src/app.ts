@@ -1,5 +1,5 @@
 import express, { Application, Request, Response } from "express";
-import { SpecialityRoutes } from "./modules/speciality/speciality.routes";
+
 import { IndexRoutes } from "./app/routes";
 
 const app: Application = express();
