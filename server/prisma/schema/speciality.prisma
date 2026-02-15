@@ -8,6 +8,8 @@ model Speciality {
   updatedAt DateTime @updatedAt
   isDeleted Boolean  @default(false)
 
+ specialities DoctorSpeciality[]
+
   @@index([isDeleted], name: "idx_speciality_isDeleted")
   @@index([title], name: "idx_speciality_title")
   @@map("specialities")
