@@ -10,6 +10,22 @@ interface EnvConfig {
   BETTER_AUTH_URL: string;
 }
 const EnvVariables = (): EnvConfig => {
+  const requireEnv = [
+    "NODE_ENV",
+    "PORT",
+    "DATABASE_URL",
+    "BETTER_AUTH_SECRET",
+    "BETTER_AUTH_URL",
+  ];
+
+  requireEnv.forEach((key) => {
+    if (!process.env[key]) {
+      throw new Error(
+        `Environment Variable ${key} is required but not set in .env`,
+      );
+    }
+  });
+
   return {
     NODE_ENV: process.env.NODE_ENV as string,
     PORT: process.env.PORT as string,
@@ -19,4 +35,4 @@ const EnvVariables = (): EnvConfig => {
   };
 };
 
-export const env = EnvVariables();
+export const envVars = EnvVariables();

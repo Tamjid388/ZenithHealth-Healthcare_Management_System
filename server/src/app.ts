@@ -1,6 +1,9 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application, NextFunction, Request, Response } from "express";
 
 import { IndexRoutes } from "./app/routes";
+import { globalErroHandler } from "./app/middleware/globalErroHandler";
+import notFound from "./app/middleware/notfound";
+
 
 const app: Application = express();
 
@@ -19,6 +22,10 @@ app.use("/api/v1",IndexRoutes)
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello, TypeScript + Express!');
 });
+
+app.use(globalErroHandler)
+app.use(notFound)
+    
 
 
 
