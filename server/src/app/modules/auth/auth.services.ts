@@ -1,6 +1,7 @@
 import { Role, User, UserStatus } from "../../../generated/prisma/client";
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
+import { tokenUtils } from "../../utils/token";
 
 interface IRegisterPayload {
     name: string;
@@ -32,9 +33,23 @@ const registerPatient = async (payload: IRegisterPayload) => {
             })
 
         })
+
+        const tokenPayload = {
+            userId: data.user.id,
+            role: data.user.role,
+            name: data.user.name,
+            email: data.user.email,
+            status: data.user.status,
+            isDeleted: data.user.isDeleted,
+            emailVerified: data.user.emailVerified,
+        }
+        const accessToken=tokenUtils.getAccesstoken(tokenPayload)
+const refreshToken=tokenUtils.getRefreshToken(tokenPayload)
         return {
             ...data,
-            patient: patientTx
+            patient: patientTx,
+            accessToken,
+            refreshToken
         }
     } catch (error) {
         console.log("TRANSACTION ERROR ", error)
@@ -59,8 +74,27 @@ const loginUser = async (payload: { email: string, password: string }) => {
     if (data.user.status === UserStatus.BLOCKED) {
         throw new Error("User Is Blocked")
     }
+    const tokenPayload = {
+        userId: data.user.id,
+        role: data.user.role,
+        name: data.user.name,
+        email: data.user.email,
+        status: data.user.status,
+        isDeleted: data.user.isDeleted,
+        emailVerified: data.user.emailVerified,
 
-    return data
+
+    }
+    const accessToken = tokenUtils.getAccesstoken(tokenPayload)
+    const refreshToken = tokenUtils.getRefreshToken(tokenPayload)
+
+
+
+    return {
+        ...data,
+        accessToken,
+        refreshToken
+    }
 }
 
 export const authService = {
