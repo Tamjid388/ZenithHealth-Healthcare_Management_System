@@ -23,3 +23,18 @@ export interface IDoctorPayload {
         userId?: string;
     }, specialities: string[]
 }
+export interface IAdminPayload {
+    password: string;
+    admin: {
+        name: string;
+        email: string;
+        profilePhoto?: string;
+        contactNumber?: string;
+        address?: string;
+        isDeleted: boolean;
+        deletedAt: Date;
+        createdAt: Date;
+        updatedAt: Date;
+        userId?: string;
+    }
+}

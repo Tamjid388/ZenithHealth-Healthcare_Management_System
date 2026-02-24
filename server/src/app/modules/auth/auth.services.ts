@@ -43,8 +43,8 @@ const registerPatient = async (payload: IRegisterPayload) => {
             isDeleted: data.user.isDeleted,
             emailVerified: data.user.emailVerified,
         }
-        const accessToken=tokenUtils.getAccesstoken(tokenPayload)
-const refreshToken=tokenUtils.getRefreshToken(tokenPayload)
+        const accessToken = tokenUtils.getAccesstoken(tokenPayload)
+        const refreshToken = tokenUtils.getRefreshToken(tokenPayload)
         return {
             ...data,
             patient: patientTx,

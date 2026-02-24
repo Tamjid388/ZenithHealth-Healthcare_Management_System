@@ -23,6 +23,10 @@ model Doctor {
     userId             String             @unique
     user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
     doctorSpecialities DoctorSpeciality[]
+    doctorSchedules    DoctorSchedules[]
+    appointments Appointment[]
+    prescriptions Prescription[]
+    reviews Review[]
 
     @@index([email], name: "doctor_email_idx")
     @@index([isDeleted], name: "doctor_isDeleted_idx")

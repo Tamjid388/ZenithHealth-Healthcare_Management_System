@@ -1,7 +1,8 @@
 import { Role, Speciality } from "../../../generated/prisma/client";
+import AppError from "../../errorHelpers/AppError";
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
-import { IDoctorPayload } from "./user.interface";
+import { IAdminPayload, IDoctorPayload } from "./user.interface";
 
 const createDoctor = async (payload: IDoctorPayload) => {
     const { password, doctor } = payload;
@@ -111,8 +112,38 @@ const createDoctor = async (payload: IDoctorPayload) => {
         })
     }
 }
+const createAdmin = async (payload: IAdminPayload) => {
+    const user = await auth.api.signUpEmail({
+        body: {
+            email: payload.admin.email,
+            password: payload.password,
+            role: Role.ADMIN,
+            name: payload.admin.name,
+            needPasswordChange: true
+        }
+    })
+    try {
+        const result = await prisma.$transaction(async (tx) => {
+            const admin = await tx.admin.create({
+                data: {
+                    ...payload.admin,
+                    userId: user.user.id
+                }
+            })
 
+            return admin
+        })
+        return result
+    } catch (error) {
+        await prisma.user.delete({
+            where: {
+                id: user.user.id
+            }
+        })
+        throw new Error("Failed to create admin")
+    }
+}
 
 export const UserService = {
-    createDoctor
+    createDoctor, createAdmin
 }

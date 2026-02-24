@@ -8,11 +8,20 @@ const registerPatient = catchAsync(
     async (req: Request, res: Response) => {
         const payload = req.body
         const result = await authService.registerPatient(payload)
+        const {accessToken, refreshToken,token,...rest} = result
+        tokenUtils.setAccessTokenCookie(res, accessToken)
+        tokenUtils.setRefreshTokenCookie(res, refreshToken)
+        tokenUtils.setBetterAuthTokenCookie(res, token as string)
         sendResponse(res, {
             httpStatusCode: 201,
             success: true,
             message: "Patient Created Successfully",
-            data: result
+            data: {
+                token,
+                accessToken,
+                refreshToken,
+                ...rest
+            }
         })
     }
 )

@@ -62,4 +62,27 @@ export const createDoctorZodSchema = z.object({
 
 
 
-export default createDoctorZodSchema
+export const createAdminZodSchema = z.object({
+    password: z
+        .string()
+        .min(6, "Password must be at least 6 characters"),
+    admin: z.object({
+        name: z
+            .string()
+            .min(1, "Name is required")
+            .min(5)
+            .max(50),
+        email: z
+            .string()
+            .min(1, "Email is required")
+            .email("Invalid email format"),
+        profilePhoto: z.string().optional(),
+        contactNumber: z
+            .string()
+            .min(11, "Contact number must be 11 digits")
+            .max(14, "Contact number must be 14 digits")
+            .optional(),
+        address: z.string().optional(),
+       
+    })
+})
