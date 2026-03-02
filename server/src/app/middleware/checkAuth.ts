@@ -53,6 +53,12 @@ export const checkAuth = (...authRoles: Role[]) => {
                     if (authRoles.length > 0 && !authRoles.includes(user.role)) {
                         throw new AppError(403, "You are not authorized to access this resource")
                     }
+
+                       req.user = {
+                userId: user.id,
+                role: user.role,
+                email: user.email,
+            }
                 }
             }
             const accessToken = cookieUtils.getcookie(req, "accessToken")
@@ -69,7 +75,7 @@ export const checkAuth = (...authRoles: Role[]) => {
             if (authRoles.length > 0 && !authRoles.includes(verifyToken.data!.role)) {
                 throw new AppError(403, "You are not authorized to access this resource")
             }
-
+         
             next()
 
         } catch (error: any) {
