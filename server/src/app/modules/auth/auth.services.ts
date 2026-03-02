@@ -1,4 +1,4 @@
-import { th, tr } from "zod/locales";
+
 import { Role, User, UserStatus } from "../../../generated/prisma/client";
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
@@ -10,12 +10,9 @@ import { jwtUtils } from "../../utils/jwt";
 import { envVars } from "../../config/env";
 import { JwtPayload } from "jsonwebtoken";
 import { access } from "node:fs";
+import { IChangePasswordPayload, IRegisterPayload } from "./auth.interface";
 
-interface IRegisterPayload {
-  name: string;
-  email: string;
-  password: string;
-}
+
 
 const registerPatient = async (payload: IRegisterPayload) => {
   const { name, email, password } = payload;
@@ -98,6 +95,37 @@ const loginUser = async (payload: { email: string; password: string }) => {
     refreshToken,
   };
 };
+
+const changePassword = async (payload: IChangePasswordPayload,sessionToken: string) => {
+const session=await auth.api.getSession({
+   headers:new Headers(
+    {
+         Authorization: `Bearer ${sessionToken}`
+    }
+   )
+})
+
+if(!session){
+    throw new AppError(status.UNAUTHORIZED,"Invalid Session")
+}
+const {currentPassword,newPassword}=payload
+const result=await auth.api.changePassword({
+  body:{
+    currentPassword,
+    newPassword,
+    revokeOtherSessions:true
+  },
+  headers:new Headers(
+    {
+         Authorization: `Bearer ${sessionToken}`
+    })
+
+})
+return result
+}
+
+
+
 const getMe = async (id: string) => {
   const isUserExist = await prisma.user.findUnique({
     where: {
@@ -191,5 +219,5 @@ export const authService = {
   registerPatient,
   loginUser,
   getMe,
-  getNewToken,
+  getNewToken,changePassword
 };
