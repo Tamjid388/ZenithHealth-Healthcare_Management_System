@@ -11,6 +11,8 @@ import { envVars } from "../../config/env";
 import { JwtPayload } from "jsonwebtoken";
 import { access } from "node:fs";
 import { IChangePasswordPayload, IRegisterPayload } from "./auth.interface";
+import { log } from "node:console";
+import { email } from "zod";
 
 
 
@@ -96,6 +98,15 @@ const loginUser = async (payload: { email: string; password: string }) => {
   };
 };
 
+const logoutUser=async(sessionToken: string)=>{
+    const result=await auth.api.signOut({
+        headers:new Headers({
+            Authorization: `Bearer ${sessionToken}`
+        })
+    })
+    return result;
+}
+
 const changePassword = async (payload: IChangePasswordPayload,sessionToken: string) => {
 const session=await auth.api.getSession({
    headers:new Headers(
@@ -121,7 +132,22 @@ const result=await auth.api.changePassword({
     })
 
 })
-return result
+  const tokenPayload = {
+    userId: session.user.id,
+    role: session.user.role,
+    name: session.user.name,
+    email: session.user.email,
+    status: session.user.status,
+    isDeleted: session.user.isDeleted,
+    emailVerified: session.user.emailVerified,
+  };
+  const accessToken = tokenUtils.getAccesstoken(tokenPayload);
+  const refreshToken = tokenUtils.getRefreshToken(tokenPayload);
+return {
+  ...result,
+  accessToken,
+  refreshToken
+}
 }
 
 
@@ -215,9 +241,32 @@ const getNewToken = async (refreshToken: string, sessionToken: string) => {
     sessionToken: token,
   };
 };
+//verify email
+const verifyEmail=async(email:string,otp:string)=>{
+const result=await auth.api.verifyEmailOTP({
+  body:{
+    email,
+    otp
+  }
+})
+if(result.status && !result.user){
+  await prisma.user.update({
+    where:{
+      email:email
+    },
+    data:{
+      emailVerified:true
+    }
+  })
+}
+return result
+}
+
+
+
 export const authService = {
   registerPatient,
   loginUser,
   getMe,
-  getNewToken,changePassword
+  getNewToken,changePassword,logoutUser,verifyEmail
 };
