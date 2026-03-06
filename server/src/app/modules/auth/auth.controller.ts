@@ -138,10 +138,34 @@ const verifyEmail = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+//Forget Password
+const forgetPassword = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+ await authService.forgetPassword(payload.email);
+  sendResponse(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "Forget Password Email Sent Successfully",
+ 
+  });
+});
+
+//Reset Password
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+ await authService.resetPassword(payload.email,payload.otp,payload.newPassword);
+  sendResponse(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "Password Reset Successfully",
+ 
+  });
+});
+
 export const AuthController = {
   registerPatient,
   loginUser,
   getMe,
   getNewtoken,
-  changePassword,logoutUser,verifyEmail
+  changePassword,logoutUser,verifyEmail,forgetPassword,resetPassword
 };

@@ -11,5 +11,6 @@ router.post("/refresh-token",AuthController.getNewtoken)
 router.post("/change-password",checkAuth("ADMIN","DOCTOR","PATIENT","SUPER_ADMIN"),AuthController.changePassword)
 router.post("/logout",checkAuth("ADMIN","DOCTOR","PATIENT","SUPER_ADMIN"),AuthController.logoutUser)
 router.post("/verify-email",AuthController.verifyEmail)
+router.post("/forget-password",AuthController.forgetPassword)
+router.post("/reset-password",AuthController.resetPassword)
 export const AuthRoutes=router
-

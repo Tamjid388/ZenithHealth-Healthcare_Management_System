@@ -9,13 +9,11 @@ import status from "http-status";
 import { jwtUtils } from "../../utils/jwt";
 import { envVars } from "../../config/env";
 import { JwtPayload } from "jsonwebtoken";
-import { access } from "node:fs";
 import { IChangePasswordPayload, IRegisterPayload } from "./auth.interface";
-import { log } from "node:console";
-import { email } from "zod";
 
+ 
 
-
+//register patient
 const registerPatient = async (payload: IRegisterPayload) => {
   const { name, email, password } = payload;
   const data = await auth.api.signUpEmail({
@@ -68,6 +66,7 @@ const registerPatient = async (payload: IRegisterPayload) => {
     throw error;
   }
 };
+//login user
 const loginUser = async (payload: { email: string; password: string }) => {
   const { email, password } = payload;
   const data = await auth.api.signInEmail({
@@ -97,7 +96,7 @@ const loginUser = async (payload: { email: string; password: string }) => {
     refreshToken,
   };
 };
-
+//logout
 const logoutUser=async(sessionToken: string)=>{
     const result=await auth.api.signOut({
         headers:new Headers({
@@ -106,7 +105,7 @@ const logoutUser=async(sessionToken: string)=>{
     })
     return result;
 }
-
+//change password
 const changePassword = async (payload: IChangePasswordPayload,sessionToken: string) => {
 const session=await auth.api.getSession({
    headers:new Headers(
@@ -132,6 +131,16 @@ const result=await auth.api.changePassword({
     })
 
 })
+if(session.user.needPasswordChange){
+  await prisma.user.update({
+    where:{
+      id:session.user.id
+    },
+    data:{
+      needPasswordChange:false
+    }
+  })
+}
   const tokenPayload = {
     userId: session.user.id,
     role: session.user.role,
@@ -149,9 +158,7 @@ return {
   refreshToken
 }
 }
-
-
-
+//get my information
 const getMe = async (id: string) => {
   const isUserExist = await prisma.user.findUnique({
     where: {
@@ -261,12 +268,64 @@ if(result.status && !result.user){
 }
 return result
 }
-
-
+//forget password
+const forgetPassword=async(email:string)=>{
+  const isUserExist=await prisma.user.findUnique({
+    where:{
+      email:email
+    }
+  })
+  if(!isUserExist){
+    throw new AppError(status.NOT_FOUND,"User Not Found")
+  }
+  if(!isUserExist.emailVerified){
+    throw new AppError(status.BAD_REQUEST,"User Not Verified")
+  }
+  if(isUserExist.isDeleted || isUserExist.status===UserStatus.BLOCKED){
+    throw new AppError(status.BAD_REQUEST,"User Is Deleted")
+  }
+  const result=await auth.api.requestPasswordResetEmailOTP({
+    body:{
+      email
+    }
+  })
+  return result
+}
+//reset password
+const resetPassword=async(email:string,otp:string,newPassword:string)=>{
+    const isUserExist=await prisma.user.findUnique({
+    where:{
+      email:email
+    }
+  })
+  if(!isUserExist){
+    throw new AppError(status.NOT_FOUND,"User Not Found")
+  }
+  if(!isUserExist.emailVerified){
+    throw new AppError(status.BAD_REQUEST,"User Not Verified")
+  }
+  if(isUserExist.isDeleted || isUserExist.status===UserStatus.BLOCKED){
+    throw new AppError(status.BAD_REQUEST,"User Is Deleted")
+  }
+  const result=await auth.api.resetPasswordEmailOTP({
+    body:{
+      email,
+      otp,
+      password:newPassword
+    }
+  })
+  await prisma.session.deleteMany({
+    where:{
+      userId:isUserExist.id
+    }
+  })
+  return result
+}
 
 export const authService = {
   registerPatient,
   loginUser,
   getMe,
-  getNewToken,changePassword,logoutUser,verifyEmail
+  getNewToken,changePassword,logoutUser,verifyEmail,
+  forgetPassword,resetPassword
 };
