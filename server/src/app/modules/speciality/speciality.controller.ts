@@ -4,17 +4,22 @@ import { SpecialityService } from "./speciality.service";
 import { catchAsync } from "../../../app/shared/catchAsync";
 import { sendResponse } from "../../../app/shared/sendResponse";
 
-
-
-const createSpeciality = async (req: Request, res: Response) => {
-  const result = await SpecialityService.createSpeciality(req.body);
+const createSpeciality=catchAsync(async (req: Request, res: Response) => {
+  const payload={
+    ...req.body,
+    icon:req.file?.path
+  }
+  const result = await SpecialityService.createSpeciality(payload);
   sendResponse(res, {
     httpStatusCode: 200,
     success: true,
     message: "Speciality Created Successfully",
     data: result,
   });
-};
+});
+
+
+
 
 const getAllSpecialities = catchAsync(async (req: Request, res: Response) => {
   const result = await SpecialityService.getAllSpecialities();

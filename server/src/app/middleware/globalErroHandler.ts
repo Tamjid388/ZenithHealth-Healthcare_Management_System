@@ -5,13 +5,24 @@ import { TErrorResponse, TErrorSources } from "../interfaces/error.interface";
 import { hadnleZodError } from "../errorHelpers/handleZodError";
 import status from "http-status";
 import AppError from "../errorHelpers/AppError";
+import { deleteFileFromCloudinary } from "../config/cloudinary.config";
 
 
 
-export const globalErroHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
+export const globalErroHandler = async(err: any, req: Request, res: Response, next: NextFunction) => {
     if (envVars.NODE_ENV === "development") {
         console.log("Error from globalErroHandler", err)
     }
+//delete file from cloudinary if file is uploaded
+if(req.file){
+    await deleteFileFromCloudinary(req.file.path)
+}
+
+if(req.files && Array.isArray(req.files) && req.files.length > 0){
+    for(const file of req.files){
+        await deleteFileFromCloudinary(file.path)
+    }
+}
     let errorSource: TErrorSources[] = []
     let statusCode: number = status.INTERNAL_SERVER_ERROR
     let message: string = "Something went wrong"
