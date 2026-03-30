@@ -13,16 +13,7 @@ cloudinary.config({
 
 
 
-// export const uploadFileToCloudinary = async (file) => {
-//     try {
-//         const result = await cloudinary.uploader.upload(file.path, {
-//             resource_type: "image"
-//         })
-//         return result
-//     } catch (error) {
-//         throw new AppError(status.INTERNAL_SERVER_ERROR, "Failed to upload file to cloudinary")
-//     }
-// }
+
 
 export const uploadFileToCloudinary = async (
     buffer: Buffer,
