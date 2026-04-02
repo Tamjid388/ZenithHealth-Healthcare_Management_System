@@ -3,19 +3,15 @@ import { Doctor, UserStatus } from "../../../generated/prisma/client"
 import AppError from "../../errorHelpers/AppError"
 import { prisma } from "../../lib/prisma"
 import { IUpdateDoctor } from "./doctor.interface"
+import { QueryBuilder } from "../../utils/queryBuilder"
+
 
 const getAllDoctors = async () => {
-    const doctors = await prisma.doctor.findMany({
-        include: {
-            user: true,
-            doctorSpecialities: {
-                include: {
-                    speciality: true
-                }
-            }
-        }
-    })
-    return doctors
+    // const doctors = await prisma.doctor.findMany({
+ 
+    // })
+    // return doctors
+    // const queryBuilder=new  QueryBuilder()
 }
 const getDoctorById = async (id: string) => {
     const doctor = await prisma.doctor.findUnique({
