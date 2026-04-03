@@ -4,14 +4,40 @@ import AppError from "../../errorHelpers/AppError"
 import { prisma } from "../../lib/prisma"
 import { IUpdateDoctor } from "./doctor.interface"
 import { QueryBuilder } from "../../utils/queryBuilder"
+import { IQueryParams } from "../../interfaces"
+import { doctorFilterableFields, doctorIncludeConfig, doctorSearchableFields } from "./doctor.constants"
+import { DoctorInclude, DoctorWhereInput } from "../../../generated/prisma/models"
 
 
-const getAllDoctors = async () => {
-    // const doctors = await prisma.doctor.findMany({
- 
-    // })
-    // return doctors
-    // const queryBuilder=new  QueryBuilder()
+const getAllDoctors = async (queryParams: IQueryParams) => {
+
+    const queryBuilder=new  QueryBuilder<Doctor,DoctorWhereInput,DoctorInclude>(
+        prisma.doctor,queryParams,{
+            searchableFields: doctorSearchableFields,
+            filterableFields: doctorFilterableFields,
+
+        }
+    )
+    const result = await queryBuilder
+    .search()
+    .filter()
+    .where({
+        isDeleted: false
+    })
+    .include({
+        user: true
+        // ,
+        // doctorSpecialities: {
+        //     include: {
+        //         speciality: true
+        //     }
+        // }
+    })
+    .dynamicInclude(doctorIncludeConfig)
+    .paginate()
+    .sort()
+    .execute()
+    return result
 }
 const getDoctorById = async (id: string) => {
     const doctor = await prisma.doctor.findUnique({

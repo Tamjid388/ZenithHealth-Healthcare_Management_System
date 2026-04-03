@@ -1,0 +1,23 @@
+---
+description: Core project safety and workflow guardrails
+alwaysApply: true
+---
+
+# Core Guardrails
+
+- Keep changes focused on the user's request; avoid unrelated refactors.
+- Never revert or overwrite user edits unless explicitly asked.
+- Avoid destructive git commands (`reset --hard`, force-push, checkout discard) unless explicitly requested.
+- Prefer minimal diffs and preserve existing project patterns.
+- When adding dependencies, use the package manager and avoid pinning invented versions.
+- After meaningful edits, run relevant checks for touched code (`lint`, `build`, or targeted tests) and report results.
+
+## Example
+
+```bash
+# Good: validate the modified app only
+cd server && npm run lint
+
+# Avoid: broad, risky repo-wide commands unrelated to the request
+git reset --hard
+```

@@ -4,11 +4,14 @@ import { IndexRoutes } from "./app/routes";
 import { globalErroHandler } from "./app/middleware/globalErroHandler";
 import notFound from "./app/middleware/notfound";
 import cookieParser from "cookie-parser";
+import qs from "qs";
 
 
 const app: Application = express();
 
-
+app.set("query parser", (query: string) => {
+ qs.parse(query);
+});
 
 app.use(express.urlencoded({ extended: true }));
 
