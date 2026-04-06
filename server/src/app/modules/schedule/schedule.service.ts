@@ -50,8 +50,8 @@ const createSchedule = async (payload: ICreateSchedulePayload) => {
 
       const existingSchedule = await prisma.schedule.findFirst({
         where: {
-          startDate: scheduleData.startDateTime,
-          endDate: scheduleData.endDateTime,
+          startDateTime: scheduleData.startDateTime,
+          endDateTime: scheduleData.endDateTime,
         },
       });
 
@@ -154,4 +154,4 @@ export const ScheduleService = {
   getScheduleById,
   updateSchedule,
   deleteSchedule,
-};
+}; 
