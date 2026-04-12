@@ -8,6 +8,7 @@ import { QueryBuilder } from "../../utils/queryBuilder";
 import { Prisma, Schedule } from "../../../generated/prisma/client";
 import { scheduleFilterableFields, scheduleIncludeConfig, scheduleSearchableFields } from "./schedule.constant";
 
+// ---> Create Schedule
 const createSchedule = async (payload: ICreateSchedulePayload) => {
   const { startDate, endDate, startTime, endTime } = payload;
 
@@ -50,8 +51,8 @@ const createSchedule = async (payload: ICreateSchedulePayload) => {
 
       const existingSchedule = await prisma.schedule.findFirst({
         where: {
-          startDate: scheduleData.startDateTime,
-          endDate: scheduleData.endDateTime,
+          startDateTime: scheduleData.startDateTime,
+          endDateTime: scheduleData.endDateTime,
         },
       });
 
@@ -71,7 +72,7 @@ const createSchedule = async (payload: ICreateSchedulePayload) => {
 
   return schedules;
 };
-
+//  Get All Schedules
 const getAllSchedules = async (query: IQueryParams) => {
   const queryBuilder = new QueryBuilder<
     Schedule,
@@ -93,7 +94,7 @@ const getAllSchedules = async (query: IQueryParams) => {
 
   return result;
 };
-
+// ---> Get Schedule By Id
 const getScheduleById = async (id: string) => {
   const schedule = await prisma.schedule.findUnique({
     where: {
@@ -103,7 +104,7 @@ const getScheduleById = async (id: string) => {
   return schedule;
 };
 
-// refactoring - doctor's appointment or booked slot conflict check
+// ---> Update Schedule
 const updateSchedule = async (id: string, payload: IUpdateSchedulePayload) => {
   const { startDate, endDate, startTime, endTime } = payload;
   const startDateTime = new Date(
@@ -139,6 +140,7 @@ const updateSchedule = async (id: string, payload: IUpdateSchedulePayload) => {
   return updatedSchedule;
 };
 
+// ---> Delete Schedule
 const deleteSchedule = async (id: string) => {
   await prisma.schedule.delete({
     where: {
