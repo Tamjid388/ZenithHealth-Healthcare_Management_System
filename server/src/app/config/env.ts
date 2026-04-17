@@ -5,6 +5,7 @@ dotenv.config();
 interface EnvConfig {
   NODE_ENV: string;
   PORT: string;
+  FRONTEND_URL: string;
   DATABASE_URL: string;
   BETTER_AUTH_SECRET: string;
   BETTER_AUTH_URL: string;
@@ -25,12 +26,17 @@ interface EnvConfig {
     CLOUD_NAME: string;
     API_KEY: string;
     API_SECRET: string;
+  },
+  STRIPE: {
+    STRIPE_SECRET_KEY: string;
+    WEBHOOK_SECRET: string;
   }
 }
 const EnvVariables = (): EnvConfig => {
   const requireEnv = [
     "NODE_ENV",
     "PORT",
+    "FRONTEND_URL",
     "DATABASE_URL",
     "BETTER_AUTH_SECRET",
     "BETTER_AUTH_URL",
@@ -48,6 +54,8 @@ const EnvVariables = (): EnvConfig => {
     "CLOUDINARY_CLOUD_NAME",
     "CLOUDINARY_API_KEY",
     "CLOUDINARY_API_SECRET",
+    "STRIPE_SECRET_KEY",
+    "WEBHOOK_SECRET",
   ];
 
   requireEnv.forEach((key) => {
@@ -61,6 +69,7 @@ const EnvVariables = (): EnvConfig => {
   return {
     NODE_ENV: process.env.NODE_ENV as string,
     PORT: process.env.PORT as string,
+    FRONTEND_URL: process.env.FRONTEND_URL as string,
     DATABASE_URL: process.env.DATABASE_URL as string,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET as string,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL as string,
@@ -84,6 +93,10 @@ const EnvVariables = (): EnvConfig => {
       API_KEY: process.env.CLOUDINARY_API_KEY as string,
       API_SECRET: process.env.CLOUDINARY_API_SECRET as string,
     },
+   STRIPE:{
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY as string,
+    WEBHOOK_SECRET: process.env.WEBHOOK_SECRET as string,
+   }
   };
 };
 
