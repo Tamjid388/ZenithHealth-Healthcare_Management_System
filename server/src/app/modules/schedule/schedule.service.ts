@@ -156,4 +156,4 @@ export const ScheduleService = {
   getScheduleById,
   updateSchedule,
   deleteSchedule,
-};
+}; 
