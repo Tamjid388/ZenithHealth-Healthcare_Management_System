@@ -1,5 +1,98 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Project Structure
+
+```
+client/
+├── public/                          # Static assets
+├── src/
+│   ├── app/                         # Next.js App Router
+│   │   ├── (commonLayout)/          # Public pages layout
+│   │   │   ├── (auth)/              # Authentication pages
+│   │   │   │   ├── forgot-password/
+│   │   │   │   ├── login/
+│   │   │   │   ├── register/
+│   │   │   │   ├── reset-password/
+│   │   │   │   └── verify-email/
+│   │   │   ├── consultation/        # Consultation pages
+│   │   │   │   └── doctor/[id]/
+│   │   │   ├── diagnostics/         # Diagnostics page
+│   │   │   ├── health-plans/        # Health plans page
+│   │   │   ├── medicines/           # Medicines page
+│   │   │   ├── ngos/                # NGOs page
+│   │   │   └── layout.tsx
+│   │   ├── (dashboardLayout)/       # Dashboard pages layout
+│   │   │   ├── (commonProtectedLayout)/  # Shared protected routes
+│   │   │   │   ├── change-password/
+│   │   │   │   ├── my-profile/
+│   │   │   │   └── layout.tsx
+│   │   │   ├── (patientRouteGroup)/ # Patient-specific routes
+│   │   │   │   ├── (patientDashboardLayout)/
+│   │   │   │   │   ├── (dashboard)/
+│   │   │   │   │   │   └── dashboard/
+│   │   │   │   │   │       ├── admin-management/
+│   │   │   │   │   │       ├── book-appointments/
+│   │   │   │   │   │       ├── doctor-management/
+│   │   │   │   │   │       ├── health-records/
+│   │   │   │   │   │       ├── my-appointments/
+│   │   │   │   │   │       ├── my-prescriptions/
+│   │   │   │   │   │       ├── patient-management/
+│   │   │   │   │   │       └── page.tsx
+│   │   │   │   │   └── layout.tsx
+│   │   │   │   └── payment/
+│   │   │   │       └── success/
+│   │   │   ├── admin/               # Admin dashboard
+│   │   │   │   └── dashboard/
+│   │   │   └── doctor/              # Doctor dashboard
+│   │   │       └── dashboard/
+│   │   ├── error.tsx
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx               # Root layout
+│   │   ├── loading.tsx
+│   │   └── not-found.tsx
+│   ├── components/                  # Reusable components
+│   │   ├── index.ts
+│   │   └── ui/                      # UI components (shadcn/ui)
+│   │       ├── alert-dialog.tsx
+│   │       ├── alert.tsx
+│   │       ├── avatar.tsx
+│   │       ├── button.tsx
+│   │       ├── calendar.tsx
+│   │       ├── card.tsx
+│   │       ├── checkbox.tsx
+│   │       ├── drawer.tsx
+│   │       ├── dropdown-menu.tsx
+│   │       ├── field.tsx
+│   │       ├── input-otp.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── popover.tsx
+│   │       ├── select.tsx
+│   │       ├── separator.tsx
+│   │       ├── skeleton.tsx
+│   │       ├── sonner.tsx
+│   │       ├── spinner.tsx
+│   │       ├── table.tsx
+│   │       └── textarea.tsx
+│   └── lib/                         # Utility libraries
+│       ├── axios/
+│       │   └── httpClient.ts        # Axios HTTP client configuration
+│       └── utils.ts
+├── .dockerignore
+├── .gitignore
+├── components.json                  # shadcn/ui config
+├── Dockerfile
+├── eslint.config.mjs
+├── next.config.ts
+├── package.json
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
+├── postcss.config.mjs
+├── tsconfig.json
+└── README.md
+```
+
 ## Getting Started
 
 First, run the development server:
