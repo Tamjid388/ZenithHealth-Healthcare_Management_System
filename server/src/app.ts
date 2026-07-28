@@ -4,15 +4,24 @@ import { IndexRoutes } from "./app/routes";
 import { globalErroHandler } from "./app/middleware/globalErroHandler";
 import notFound from "./app/middleware/notfound";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import qs from "qs";
 import { PaymentController } from "./app/modules/payment/payment.controller";
+import { envVars } from "./app/config/env";
 
 
 const app: Application = express();
 
 app.set("query parser", (query: string) => {
- qs.parse(query);
+  return qs.parse(query);
 });
+
+app.use(
+  cors({
+    origin: envVars.FRONTEND_URL,
+    credentials: true,
+  }),
+);
 
 app.use(express.urlencoded({ extended: true }));
 

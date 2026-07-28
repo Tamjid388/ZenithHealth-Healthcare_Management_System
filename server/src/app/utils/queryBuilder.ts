@@ -25,9 +25,10 @@ TInclude = Record<string, unknown>
 
     constructor(
         private model : PrismaModelDelegate,
-        private queryParams : IQueryParams,
+        private queryParams : IQueryParams = {},
         private config : IQueryConfig = {}
     ){
+        this.queryParams = queryParams ?? {};
         this.query = {
             where : {},
             include : {},
@@ -42,7 +43,7 @@ TInclude = Record<string, unknown>
     }
 
     search() : this {
-        const {searchTerm} = this.queryParams;
+        const {searchTerm} = this.queryParams ?? {};
         const { searchableFields} = this.config;
         // doctorSearchableFields = ['user.name', 'user.email', 'specialties.specialty.title' , 'specialties.specialty.description']
         if(searchTerm && searchableFields && searchableFields.length > 0){
