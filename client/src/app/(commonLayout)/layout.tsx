@@ -1,8 +1,7 @@
-
 import { Fragment } from "react";
 
-
-
+import SiteFooter from "@/components/shared/SiteFooter";
+import SiteHeader from "@/components/shared/SiteHeader";
 
 export default function CommonLayout({
   children,
@@ -10,9 +9,10 @@ export default function CommonLayout({
   children: React.ReactNode;
 }>) {
   return (
-  <Fragment>
-    <h1 className="text-green-500 font-bold text-2xl">Common Layout</h1>
-    {children}
-  </Fragment>
+    <Fragment>
+      <SiteHeader />
+      {children}
+      <SiteFooter />
+    </Fragment>
   );
 }
