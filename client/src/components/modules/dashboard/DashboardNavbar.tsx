@@ -1,16 +1,23 @@
-import { getDefaultDashboardRoute } from "@/lib/authUtlils"
+import { isAuthUserRole, resolveDashboardRoute } from "@/lib/authUtlils"
 import { getNavItemsByRole } from "@/lib/navItems"
 import { getUserInfo } from "@/services/auth.service"
 import { NavSection } from "@/types/dashboard.types"
 import DashboardNavbarContent from "./DashboardNavbarContent"
 
-export const DashboardNavbar =async () => {
+export const DashboardNavbar = async () => {
   const userInfo = await getUserInfo()
-  const navItems : NavSection[] = getNavItemsByRole(userInfo.role)
+  const hasValidRole = userInfo && isAuthUserRole(userInfo.role)
+  const navItems: NavSection[] = hasValidRole
+    ? getNavItemsByRole(userInfo.role)
+    : []
+  const dashboardHome = resolveDashboardRoute(userInfo?.role) ?? "/"
 
-  const dashboardHome = getDefaultDashboardRoute(userInfo.role)
-return (
-  <DashboardNavbarContent userInfo={userInfo} navItems={navItems} dashboardHome={dashboardHome}/>
-)
+  return (
+    <DashboardNavbarContent
+      userInfo={hasValidRole ? userInfo : null}
+      navItems={navItems}
+      dashboardHome={dashboardHome}
+    />
+  )
 }
 export default DashboardNavbar;

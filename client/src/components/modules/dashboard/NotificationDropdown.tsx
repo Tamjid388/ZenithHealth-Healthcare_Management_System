@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui";
 import { Badge } from "@/components/ui/badge";
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { Bell, Calendar, CheckCircle, Clock, UserPlus } from "lucide-react";
@@ -91,18 +91,20 @@ const NotificationDropdown = () => {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align={"end"} className="w-80">
-            <DropdownMenuLabel className="flex items-center justify-between">
-                <span>
-                    Notifications
-                </span>
-                {
-                    unreadCount > 0 && (
-                        <Badge variant={"secondary"} className="ml-2">
-                            {unreadCount} new
-                        </Badge>
-                    )
-                }
-            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+                <DropdownMenuLabel className="flex items-center justify-between">
+                    <span>
+                        Notifications
+                    </span>
+                    {
+                        unreadCount > 0 && (
+                            <Badge variant={"secondary"} className="ml-2">
+                                {unreadCount} new
+                            </Badge>
+                        )
+                    }
+                </DropdownMenuLabel>
+            </DropdownMenuGroup>
 
             <DropdownMenuSeparator/>
 

@@ -1,5 +1,9 @@
 # ZenithHealth Backend — System Documentation
 
+> **Do not always-load this file.** It is an as-built backend encyclopedia, not a live OpenAPI contract.  
+> **Before treating any path as public,** verify `server/src/app/routes/index.ts` (commented mounts are not APIs).  
+> Agent map: `AGENTS.md` and `docs/INDEX.md`. Auth details: `docs/auth/hybrid-auth.md`.
+
 > **Source of truth:** Implementation under `server/`.  
 > **Generated from codebase analysis** (not from assumptions).  
 > Partial or missing functionality is explicitly marked.

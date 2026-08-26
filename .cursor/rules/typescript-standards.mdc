@@ -1,6 +1,7 @@
 ---
 description: TypeScript standards for server and client code
-alwaysApply: true
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
 ---
 
 # TypeScript Standards
@@ -8,23 +9,5 @@ alwaysApply: true
 - Prefer explicit, domain-focused types for public function inputs/outputs.
 - Avoid `any`; use `unknown` with narrowing when type is uncertain.
 - Keep functions small and single-purpose; extract helpers instead of deep nesting.
-- Handle async failures with meaningful errors; do not silently swallow exceptions.
-- Reuse existing validators/schemas (for example Zod) before introducing new validation styles.
-
-## Example
-
-```typescript
-// Avoid
-async function getDoctor(id: any) {
-  try { return await repo.findById(id); } catch { return null; }
-}
-
-// Preferred
-async function getDoctor(id: string) {
-  try {
-    return await repo.findById(id);
-  } catch (error) {
-    throw new Error("Failed to load doctor record");
-  }
-}
-```
+- Handle async failures with meaningful errors; do not silently swallow exceptions with empty `catch`.
+- Reuse existing Zod schemas before introducing new validation styles.

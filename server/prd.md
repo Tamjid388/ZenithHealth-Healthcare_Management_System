@@ -1,5 +1,7 @@
 # Backend Product Requirements Document (PRD)
 
+> **Superseded as a live contract.** Prefer `server/src/app/routes/index.ts` plus `BACKEND_SYSTEM_DOCUMENTATION.md` (verify routes first). Agent map: `../AGENTS.md` and `../docs/INDEX.md`. This file was last reviewed against code on 2026-04-13 and will drift.
+
 **Document type:** As-built specification derived from the current server codebase.  
 **Scope:** [server](.) package only — Express REST API, Prisma, PostgreSQL, Better Auth integration.  
 **API base path:** `/api/v1` (see `src/app.ts`).  

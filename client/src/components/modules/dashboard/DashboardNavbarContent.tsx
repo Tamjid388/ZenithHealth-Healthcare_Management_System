@@ -9,7 +9,7 @@ import UserDropdown from "./UserDropdown";
 import DashboardMobileSidebar from "./DashboardMobileSidebar";
 import NotificationDropdown from "./NotificationDropdown";
 interface DashboardNavbarProps {
-  userInfo : UserInfo;
+  userInfo : UserInfo | null;
   navItems: NavSection[];
   dashboardHome : string
 }
@@ -43,7 +43,9 @@ return (
         </SheetTrigger>
 
         <SheetContent side="left" className="w-64 p-0">
-            <DashboardMobileSidebar userInfo={userInfo} dashboardHome={dashboardHome} navItems={navItems} />
+            {userInfo && (
+              <DashboardMobileSidebar userInfo={userInfo} dashboardHome={dashboardHome} navItems={navItems} />
+            )}
         </SheetContent>
     </Sheet>
 
@@ -62,8 +64,9 @@ return (
         {/* Notification */}
         <NotificationDropdown/>
 
-        {/* User Dropdown  */}
-        <UserDropdown userInfo={userInfo}/>
+        {userInfo && (
+          <UserDropdown userInfo={userInfo} dashboardHome={dashboardHome}/>
+        )}
     </div>
   </div>
 )

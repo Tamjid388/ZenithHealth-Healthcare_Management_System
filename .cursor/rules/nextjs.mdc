@@ -1,0 +1,20 @@
+---
+description: Next.js 16 App Router client conventions (ZenithHealth)
+globs: client/**
+alwaysApply: false
+---
+
+# Next.js client
+
+This is Next.js 16 App Router in `client/`. Domain API is Express, not Next Route Handlers.
+
+- Request gate is `src/proxy.ts`. Do not create `middleware.ts`.
+- Read `node_modules/next/dist/docs/` before using new Next APIs.
+- Mutations with cookies: colocated `"use server"` `_action.ts` files calling `lib/axios/httpClient.ts`. That client is **server-only** (`next/headers` `cookies()`). Do not import it in client components.
+- Forms: Zod in `src/zod` + `@tanstack/react-form`. Do not add react-hook-form or next-safe-action.
+- UI: shadcn in `src/components/ui` + `@base-ui/react` + lucide. Do not add Radix as a direct dependency.
+- Browser reads: fetch / TanStack Query (`src/providers/QueryProvider.tsx`). Prefer server components; keep `"use client"` at leaves.
+- Named exports preferred, but match the file you are editing.
+- Empty or missing dashboard `page.tsx` files are stubs. Register new protected routes in `src/lib/authUtlils.ts` and `src/lib/navItems.ts` only when needed.
+
+Refs: `components.json`, `src/components/modules/auth/LoginForm.tsx`, `src/lib/axios/httpClient.ts`, `client/AGENTS.md`.

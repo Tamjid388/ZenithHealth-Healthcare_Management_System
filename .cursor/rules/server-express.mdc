@@ -1,0 +1,18 @@
+---
+description: Express modular-monolith conventions for the ZenithHealth API
+globs: server/src/**
+alwaysApply: false
+---
+
+# Express server
+
+Layered modular monolith: HTTP → router → optional `checkAuth` / Zod `validateRequest` / multer → controller (`catchAsync` + `sendResponse`) → service → Prisma / Better Auth `auth.api.*` / Stripe / Cloudinary.
+
+- Put business logic in `*.service.ts`. Do not query Prisma in controllers. Do not add a repository layer.
+- New routes **must** be registered in `src/app/routes/index.ts` or they do not exist. Commented mounts (`appointment`, `doctorschedule`) are not public APIs.
+- Prefer copying the **schedule** module file set (`src/app/modules/schedule/`). Do not mass-rename `*.route.ts` vs `*.routes.ts` in the same PR.
+- Use `checkAuth(Role.*)` unless the route is explicitly public.
+- Stripe webhook is `POST /webhook` on the Express app in `src/app.ts`, not under `/api/v1`. Do not copy `payment.route.ts` wiring `create-payment-intent` to `handleStripeWebhook`.
+- Do not mount Better Auth `toNodeHandler` unless the task asks.
+
+Refs: `src/app/modules/schedule/`, `src/app/shared/sendResponse.ts`, `src/app/middleware/checkAuth.ts`, `server/AGENTS.md`.

@@ -10,6 +10,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { resolveDashboardRoute } from "@/lib/authUtlils";
+import { UserInfo } from "@/types/user.types";
+
+interface SiteHeaderProps {
+  userInfo: UserInfo | null;
+}
 
 const navLinks = [
   { href: "/consultation", label: "Consultation" },
@@ -19,7 +25,9 @@ const navLinks = [
   { href: "/ngos", label: "NGOs" },
 ] as const;
 
-export default function SiteHeader() {
+export default function SiteHeader({ userInfo }: SiteHeaderProps) {
+  const dashboardHref = resolveDashboardRoute(userInfo?.role)
+
   return (
     <header className="sticky top-0 z-50 border-b border-zh-teal-deep/10 bg-zh-mist/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
@@ -62,19 +70,34 @@ export default function SiteHeader() {
                   {link.label}
                 </DropdownMenuItem>
               ))}
+              {dashboardHref && (
+                <DropdownMenuItem render={<Link href={dashboardHref} />}>
+                  Dashboard
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Link href="/login">
-            <Button variant="ghost" className="text-zh-ink">
-              Log in
-            </Button>
-          </Link>
-          <Link href="/register">
-            <Button className="bg-zh-teal text-primary-foreground hover:bg-zh-teal-deep">
-              Get started
-            </Button>
-          </Link>
+          {dashboardHref ? (
+            <Link href={dashboardHref}>
+              <Button className="bg-zh-teal text-primary-foreground hover:bg-zh-teal-deep">
+                Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button variant="ghost" className="text-zh-ink">
+                  Log in
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button className="bg-zh-teal text-primary-foreground hover:bg-zh-teal-deep">
+                  Get started
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

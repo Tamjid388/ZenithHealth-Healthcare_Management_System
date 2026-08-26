@@ -1,6 +1,7 @@
 "use server"
 
 import { setTokenInCookies } from "@/lib/tokenUtils";
+import { isUserInfo, UserInfo } from "@/types/user.types";
 import { cookies } from "next/headers";
 
 
@@ -44,7 +45,7 @@ export async function getNewRefeshToken(refreshToken:string):Promise<boolean> {
     return false;
   }
 }
-export async function getUserInfo() {
+export async function getUserInfo(): Promise<UserInfo | null> {
   try {
       const cookieStore = await cookies();
       const accessToken = cookieStore.get("accessToken")?.value;
@@ -68,6 +69,10 @@ export async function getUserInfo() {
       }
 
       const { data } = await res.json();
+
+      if (!isUserInfo(data)) {
+          return null;
+      }
 
       return data;
   } catch (error) {

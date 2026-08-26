@@ -1,0 +1,15 @@
+---
+description: Prisma 7 schema, generate, and migration rules
+globs: server/prisma/**,server/src/generated/**,server/prisma.config.ts
+alwaysApply: false
+---
+
+# Prisma
+
+- Schema under `server/prisma/schema/` is the source of truth for database fields. Do not invent columns.
+- Prisma Client is generated to `server/src/generated/prisma`. Never hand-edit that directory, `.next`, or `server/dist/`.
+- Runtime client is `server/src/app/lib/prisma.ts` with `@prisma/adapter-pg`. Prisma 7 requires the adapter; never `new PrismaClient()` without it.
+- After schema changes: `pnpm generate` from `server/`, then a **new** migration (`pnpm migrate`). Do not edit applied `prisma/migrations/*/migration.sql`.
+- Prefer migrate over `db push` as the default for durable schema changes.
+
+Refs: `server/prisma/schema/schema.prisma`, `server/prisma.config.ts`, `server/src/app/lib/prisma.ts`.

@@ -1,0 +1,19 @@
+---
+description: Hybrid auth cookies, JWT, Better Auth, Stripe webhook, and PHI
+alwaysApply: false
+---
+
+# Security and auth
+
+This app uses a **custom hybrid**: Better Auth session cookie + JWT `accessToken` / `refreshToken`. Details: `docs/auth/hybrid-auth.md`.
+
+- Cookie names are public contracts: `accessToken`, `refreshToken`, `better-auth.session_token`. Changing them requires `proxy.ts`, `httpClient`, login/register `_action.ts`, and `checkAuth` together.
+- Client JWT secret env is `JWT_ACCESS_SECRET`. Server JWT secret env is `ACCESS_TOKEN_SECRET`. Do not treat them as the same name.
+- Do not add OAuth or providers that are not in `server/src/app/lib/auth.ts`. Login/register Google buttons are UI TODOs, not a backend.
+- Do not invent `/auth/refresh`. Server route is `POST /api/v1/auth/refresh-token`.
+- Never log tokens, cookies, OTP, or health/PHI fields. Do not copy `checkAuth` token `console.log`s.
+- Do not weaken `checkAuth` (session row + access JWT + role checks).
+- PHI stays server-side. Never put secrets or real env values in docs.
+- Stripe webhook signature verification uses `POST /webhook` with a raw body. Do not put that handler on unrelated payment routes.
+
+Do not silently “standardize” cookie names, env aliases, or refresh URLs without updating both packages.
