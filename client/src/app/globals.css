@@ -12,8 +12,8 @@
   --font-heading: var(--font-fraunces), ui-serif, Georgia, serif;
   --color-zh-ink: var(--zh-ink);
   --color-zh-mist: var(--zh-mist);
-  --color-zh-teal: var(--zh-teal);
-  --color-zh-teal-deep: var(--zh-teal-deep);
+  --color-zh-blue: var(--zh-blue);
+  --color-zh-blue-deep: var(--zh-blue-deep);
   --color-zh-foam: var(--zh-foam);
   --color-zh-sand: var(--zh-sand);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -55,12 +55,12 @@
 }
 
 :root {
-  --zh-ink: #122826;
-  --zh-mist: #eef5f3;
-  --zh-teal: #0f6a63;
-  --zh-teal-deep: #0a3f3b;
-  --zh-foam: #d5ebe6;
-  --zh-sand: #e7f1ee;
+  --zh-ink: #10253a;
+  --zh-mist: #f0f5fb;
+  --zh-blue: #1b6ca8;
+  --zh-blue-deep: #0b3a5c;
+  --zh-foam: #d6e6f4;
+  --zh-sand: #e6eef7;
 
   --background: var(--zh-mist);
   --foreground: var(--zh-ink);
@@ -68,18 +68,18 @@
   --card-foreground: var(--zh-ink);
   --popover: #ffffff;
   --popover-foreground: var(--zh-ink);
-  --primary: var(--zh-teal);
-  --primary-foreground: #f4fbf9;
+  --primary: var(--zh-blue);
+  --primary-foreground: #f5fafe;
   --secondary: var(--zh-foam);
-  --secondary-foreground: var(--zh-teal-deep);
-  --muted: #e4efec;
-  --muted-foreground: #4a6561;
+  --secondary-foreground: var(--zh-blue-deep);
+  --muted: #e2ebf4;
+  --muted-foreground: #4a6178;
   --accent: var(--zh-foam);
-  --accent-foreground: var(--zh-teal-deep);
+  --accent-foreground: var(--zh-blue-deep);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #c9ddd8;
-  --input: #c9ddd8;
-  --ring: var(--zh-teal);
+  --border: #c5d5e5;
+  --input: #c5d5e5;
+  --ring: var(--zh-blue);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -88,12 +88,12 @@
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary: var(--zh-blue);
+  --sidebar-primary-foreground: #f5fafe;
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: var(--zh-blue);
 }
 
 .dark {

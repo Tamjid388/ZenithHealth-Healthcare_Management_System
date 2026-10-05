@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import SiteLogo from "@/components/shared/SiteLogo";
+
 const footerLinks = [
   { href: "/consultation", label: "Consultation" },
   { href: "/medicines", label: "Medicines" },
@@ -10,12 +12,10 @@ const footerLinks = [
 
 export default function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-zh-teal-deep/10 bg-zh-teal-deep text-zh-foam">
+    <footer className="mt-auto border-t border-zh-blue-deep/10 bg-zh-blue-deep text-zh-foam">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 md:flex-row md:items-end md:justify-between">
         <div className="max-w-sm space-y-3">
-          <p className="font-heading text-2xl tracking-tight text-white">
-            Zenith Health
-          </p>
+          <SiteLogo inverted />
           <p className="text-sm leading-relaxed text-zh-foam/80">
             Care coordination built for clearer appointments, records, and
             follow-through.

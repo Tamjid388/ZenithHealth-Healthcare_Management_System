@@ -2,64 +2,68 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { HERO_IMAGE, heroContent } from "@/components/features/home/homeContent";
+import HomeSection from "@/components/features/home/HomeSection";
 
 export default function HomeHero() {
   return (
-    <section className="relative isolate min-h-[calc(100svh-4rem)] overflow-hidden bg-zh-teal-deep text-white">
-      <Image
-        src="/images/hero-care.jpg"
-        alt="Clinician reviewing care details with a patient"
-        fill
-        priority
-        sizes="100vw"
-        className="home-hero-kenburns object-cover object-center"
-      />
-
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-linear-to-r from-zh-teal-deep via-zh-teal-deep/80 to-zh-teal-deep/25"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-linear-to-t from-zh-teal-deep/70 via-transparent to-zh-teal-deep/30"
-      />
-
-      <div className="relative mx-auto flex min-h-[calc(100svh-4rem)] max-w-6xl flex-col justify-end px-4 pb-16 pt-24 sm:px-6 sm:pb-20 md:justify-center md:pb-24">
+    <HomeSection
+      aria-labelledby="home-hero-heading"
+      className="overflow-hidden bg-zh-mist py-12 sm:py-16 lg:py-20"
+    >
+      <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <div className="max-w-xl space-y-6">
-          <p className="home-reveal font-heading text-5xl leading-[0.95] tracking-tight text-white sm:text-6xl md:text-7xl">
-            Zenith Health
+          <p className="home-reveal text-sm font-medium tracking-[0.18em] text-zh-blue uppercase">
+            {heroContent.eyebrow}
           </p>
 
-          <h1 className="home-reveal home-reveal-delay-1 max-w-lg text-2xl font-medium leading-snug text-zh-foam sm:text-3xl">
-            Care that stays organized from visit to follow-up.
+          <h1
+            id="home-hero-heading"
+            className="home-reveal home-reveal-delay-1 font-heading text-4xl leading-[0.95] tracking-tight text-zh-blue-deep sm:text-5xl md:text-6xl lg:text-7xl"
+          >
+            {heroContent.title}
           </h1>
 
-          <p className="home-reveal home-reveal-delay-2 max-w-md text-base leading-relaxed text-white/80 sm:text-lg">
-            Book consultations, manage records, and keep every next step visible
-            in one calm place.
+          <p className="home-reveal home-reveal-delay-2 max-w-lg text-xl font-medium leading-snug text-zh-ink sm:text-2xl">
+            {heroContent.headline}
           </p>
 
-          <div className="home-reveal home-reveal-delay-3 flex flex-wrap items-center gap-3 pt-2">
-            <Link href="/consultation">
+          <p className="home-reveal home-reveal-delay-3 max-w-md text-base leading-relaxed text-zh-ink/70 sm:text-lg">
+            {heroContent.body}
+          </p>
+
+          <div className="home-reveal home-reveal-delay-4 flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap sm:items-center">
+            <Link href={heroContent.primary.href} className="w-full sm:w-auto">
               <Button
                 size="lg"
-                className="h-11 rounded-xl bg-white px-5 text-zh-teal-deep hover:bg-zh-foam"
+                className="h-11 w-full rounded-xl bg-zh-blue px-5 text-primary-foreground hover:bg-zh-blue-deep sm:w-auto"
               >
-                Book a consultation
+                {heroContent.primary.label}
               </Button>
             </Link>
-            <Link href="/register">
+            <Link href={heroContent.secondary.href} className="w-full sm:w-auto">
               <Button
                 size="lg"
                 variant="outline"
-                className="h-11 rounded-xl border-white/40 bg-transparent px-5 text-white hover:bg-white/10 hover:text-white"
+                className="h-11 w-full rounded-xl border-zh-blue-deep/20 bg-white px-5 text-zh-blue-deep hover:bg-zh-foam sm:w-auto"
               >
-                Create account
+                {heroContent.secondary.label}
               </Button>
             </Link>
           </div>
         </div>
+
+        <div className="home-reveal home-reveal-delay-2 relative aspect-[4/5] overflow-hidden rounded-2xl bg-zh-foam shadow-sm ring-1 ring-zh-blue-deep/10 sm:aspect-[5/4] lg:aspect-[4/5] lg:min-h-[28rem]">
+          <Image
+            src={HERO_IMAGE.src}
+            alt={HERO_IMAGE.alt}
+            fill
+            priority
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover object-center"
+          />
+        </div>
       </div>
-    </section>
+    </HomeSection>
   );
 }
