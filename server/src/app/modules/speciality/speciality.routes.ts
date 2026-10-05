@@ -10,7 +10,7 @@ import validateRequest from "../../middleware/validateRequest";
 const router = express.Router();
 
 router.post("/create-speciality",
-    // checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
 
     multerUpload.single("file"),
     validateRequest(SpecialityZodValidation.CreateSpecialityZodSchema),

@@ -7,6 +7,7 @@
 > **Source of truth:** Implementation under `server/`.  
 > **Generated from codebase analysis** (not from assumptions).  
 > Partial or missing functionality is explicitly marked.
+> **Last synced to implementation:** 2026-10-06 (verified against `server/src/**`; includes `EPIC-complete-partial-backend-features` WS1–WS3).
 
 ---
 
@@ -97,7 +98,7 @@ Prisma Client 7 with `@prisma/adapter-pg` against PostgreSQL. Schema is multi-fi
 | Better Auth | Email/password auth, sessions, OTP | Used via `auth.api.*` (HTTP handler **not** mounted) |
 | Nodemailer + EJS | OTP emails | Implemented |
 | Cloudinary + Multer | Speciality icon upload | Implemented |
-| Stripe | Checkout sessions + webhooks | Partial (booking path unmounted; webhook mounted) |
+| Stripe | Webhooks | Webhook mounted; appointment checkout deferred to payment EPIC |
 
 ### Architectural pattern
 
@@ -247,7 +248,7 @@ Loaded and validated in `server/src/app/config/env.ts`. Required variable **name
 | `BETTER_AUTH_URL` | Better Auth trusted origin |
 | `ACCESS_TOKEN_SECRET` / `REFRESH_TOKEN_SECRET` | JWT signing |
 | `ACCESS_TOKEN_EXPIRES_IN` / `REFRESH_TOKEN_EXPIRES_IN` | JWT TTL |
-| `BETTER_AUTH_SESSION_EXPIRES_IN` / `BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE` | Loaded in env — **not wired** into `lib/auth.ts` session config |
+| `BETTER_AUTH_SESSION_EXPIRES_IN` / `BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE` | Better Auth session TTL — wired into `lib/auth.ts` session config |
 | `EMAIL_SENDER_SMTP_*` | Nodemailer |
 | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | Cloudinary |
 | `STRIPE_SECRET_KEY` / `WEBHOOK_SECRET` | Stripe |
@@ -277,11 +278,11 @@ Loaded and validated in `server/src/app/config/env.ts`. Required variable **name
 | `/admin` | adminRoutes |
 | `/schedule` | scheduleRoutes |
 | `/payment` | paymentRoutes |
+| `/stats` | statsRoutes |
+| `/doctor-schedules` | DoctorScheduleRoutes |
+| `/appointments` | AppointmentRoutes |
 
-Commented (not active):
-
-- `/doctor-schedules`
-- `/appointments`
+All mounts above are active; no commented mounts remain.
 
 ### Database initialization
 
@@ -289,9 +290,9 @@ Prisma connects lazily on first query via `PrismaPg` adapter. No explicit connec
 
 ### Logging
 
-- `console.log` / `console.error` in various services and middleware
-- Dev-only error dump in `globalErroHandler`
+- `console.error` in global error handler (dev error dump)
 - No structured logging library (Winston/Pino/etc.)
+- Token/session/admin payload logging was removed from `checkAuth.ts` and `admin.service.ts` — never log tokens, cookies, OTP, or health fields
 
 ### Graceful shutdown
 
@@ -415,33 +416,42 @@ sendResponse  |  globalErroHandler
 | POST | `/api/v1/auth/verify-email` | Auth | Verify email OTP | No | — |
 | POST | `/api/v1/auth/forget-password` | Auth | Request reset OTP | No | — |
 | POST | `/api/v1/auth/reset-password` | Auth | Reset password with OTP | No | — |
-| POST | `/api/v1/users/create-doctor` | User | Create doctor account | **No** | — |
+| POST | `/api/v1/users/create-doctor` | User | Create doctor account | Yes | ADMIN, SUPER_ADMIN |
 | POST | `/api/v1/users/create-admin` | User | Create admin account | Yes | SUPER_ADMIN |
-| GET | `/api/v1/doctors` | Doctor | List doctors (paginated) | **No** | — |
-| GET | `/api/v1/doctors/:id` | Doctor | Get doctor by id | **No** | — |
-| PUT | `/api/v1/doctors/:id` | Doctor | Update doctor | **No** | — |
-| PATCH | `/api/v1/doctors/:id` | Doctor | Soft-delete doctor | **No** | — |
-| GET | `/api/v1/admin` | Admin | List admins | Yes | ADMIN, SUPER_ADMIN, PATIENT |
-| GET | `/api/v1/admin/:id` | Admin | Get admin by id | **No** | — |
+| GET | `/api/v1/doctors` | Doctor | List doctors (paginated) | No (public by decision — consultation listing) | — |
+| GET | `/api/v1/doctors/:id` | Doctor | Get doctor by id | No (public by decision — consultation listing) | — |
+| PUT | `/api/v1/doctors/:id` | Doctor | Update doctor | Yes | ADMIN, SUPER_ADMIN |
+| PATCH | `/api/v1/doctors/:id` | Doctor | Soft-delete doctor | Yes | ADMIN, SUPER_ADMIN |
+| GET | `/api/v1/admin` | Admin | List admins (paginated) | Yes | ADMIN, SUPER_ADMIN, PATIENT |
+| GET | `/api/v1/admin/:id` | Admin | Get admin by id | Yes | ADMIN, SUPER_ADMIN |
 | PUT | `/api/v1/admin/:id` | Admin | Update admin | Yes | SUPER_ADMIN |
 | DELETE | `/api/v1/admin/:id` | Admin | Soft-delete admin | Yes | SUPER_ADMIN |
-| POST | `/api/v1/speciality/create-speciality` | Speciality | Create speciality (+ file) | **No** (auth commented) | — |
-| GET | `/api/v1/speciality` | Speciality | List specialities | Yes | PATIENT only |
-| DELETE | `/api/v1/speciality/:id` | Speciality | Hard-delete speciality | Yes | ADMIN, SUPER_ADMIN |
+| POST | `/api/v1/speciality/create-speciality` | Speciality | Create speciality (+ file) | Yes | ADMIN, SUPER_ADMIN |
+| GET | `/api/v1/speciality` | Speciality | List specialities (paginated, hides soft-deleted) | Yes | ADMIN, SUPER_ADMIN, DOCTOR, PATIENT |
+| DELETE | `/api/v1/speciality/:id` | Speciality | Soft-delete speciality | Yes | ADMIN, SUPER_ADMIN |
 | PATCH | `/api/v1/speciality/:id` | Speciality | Update speciality | Yes | ADMIN, SUPER_ADMIN |
 | POST | `/api/v1/schedule` | Schedule | Generate schedule slots | Yes | ADMIN, SUPER_ADMIN |
 | GET | `/api/v1/schedule` | Schedule | List schedules | Yes | ADMIN, SUPER_ADMIN, DOCTOR |
 | GET | `/api/v1/schedule/:id` | Schedule | Get schedule | Yes | ADMIN, SUPER_ADMIN, DOCTOR |
 | PATCH | `/api/v1/schedule/:id` | Schedule | Update schedule | Yes | ADMIN, SUPER_ADMIN |
 | DELETE | `/api/v1/schedule/:id` | Schedule | Delete schedule | Yes | ADMIN, SUPER_ADMIN |
+| GET | `/api/v1/stats` | Stats | Dashboard aggregates | Yes | ADMIN, SUPER_ADMIN |
+| POST | `/api/v1/doctor-schedules/my` | DoctorSchedule | Doctor claims slots | Yes | DOCTOR |
+| GET | `/api/v1/doctor-schedules/my` | DoctorSchedule | Doctor's own slots (paginated) | Yes | DOCTOR |
+| PATCH | `/api/v1/doctor-schedules/my` | DoctorSchedule | Update own slots | Yes | DOCTOR |
+| DELETE | `/api/v1/doctor-schedules/my/:id` | DoctorSchedule | Delete own unbooked slot | Yes | DOCTOR |
+| GET | `/api/v1/doctor-schedules` | DoctorSchedule | All doctor schedules (paginated) | Yes | ADMIN, SUPER_ADMIN |
+| GET | `/api/v1/doctor-schedules/:doctorId/:scheduleId` | DoctorSchedule | Get slot by composite key | Yes | ADMIN, SUPER_ADMIN, DOCTOR |
+| POST | `/api/v1/appointments` | Appointment | Book appointment (PATIENT) | Yes | PATIENT |
+| GET | `/api/v1/appointments/my` | Appointment | Own appointments (paginated) | Yes | PATIENT, DOCTOR |
+| GET | `/api/v1/appointments/:id` | Appointment | Detail with ownership gate | Yes | PATIENT, DOCTOR, ADMIN, SUPER_ADMIN |
+| PATCH | `/api/v1/appointments/:id/cancel` | Appointment | Cancel (SCHEDULED → CANCELED, frees slot) | Yes | PATIENT, DOCTOR, ADMIN, SUPER_ADMIN |
 | POST | `/api/v1/payment/create-payment-intent` | Payment | **Miswired** to webhook handler | Yes | PATIENT |
 
 ### Not mounted (code exists)
 
 | Area | Notes |
 | ---- | ----- |
-| Appointment routes | `appointment.routes.ts` is empty; mount commented in `IndexRoutes` |
-| Doctor-schedule routes | `doctorschedule.routes.ts` is empty; mount commented |
 | `/users/create-superadmin` | Commented out |
 
 ---
@@ -611,63 +621,63 @@ Creates ADMIN user + Admin row; rolls back user on failure.
 
 #### API: `GET /api/v1/doctors`
 
-**Auth:** None  
+**Auth:** None (public by decision — consultation listing).  
 QueryBuilder: search, filter, paginate, sort, dynamic include. Always `isDeleted: false`.
 
 ---
 
 #### API: `GET /api/v1/doctors/:id`
 
-Includes user, specialities, appointments, schedules, reviews. Soft-deleted excluded.
+**Auth:** None (public by decision). Includes user, specialities, appointments, schedules, reviews. Soft-deleted excluded.
 
 ---
 
 #### API: `PUT /api/v1/doctors/:id`
 
 Updates doctor fields and specialities (`shouldDelete` / upsert) in a transaction.  
-**Auth:** None. Zod `updateDoctorZodSchema` exists but is **not wired**.
+**Auth:** ADMIN | SUPER_ADMIN. Zod `updateDoctorZodSchema` exists but is **not wired**.
 
 ---
 
 #### API: `PATCH /api/v1/doctors/:id`
 
-Soft-deletes doctor + user, deletes sessions and doctorSpeciality rows. **Auth:** None.
+Soft-deletes doctor + user, deletes sessions and doctorSpeciality rows. **Auth:** ADMIN | SUPER_ADMIN.
 
 ---
 
 #### API: `GET /api/v1/admin`
 
-**Auth:** ADMIN | SUPER_ADMIN | PATIENT — returns all admins with user include. **No pagination.**
+**Auth:** ADMIN | SUPER_ADMIN | PATIENT — returns paginated admins with user include (excludes soft-deleted).
 
 ---
 
 #### API: `GET /api/v1/admin/:id`
 
-**Auth:** None — returns admin + user or 404.
+**Auth:** ADMIN | SUPER_ADMIN — returns admin + user or 404.
 
 ---
 
 #### API: `PUT /api/v1/admin/:id` / `DELETE /api/v1/admin/:id`
 
-SUPER_ADMIN only. Delete soft-deletes admin/user, sets `UserStatus.DELETED`, wipes sessions & accounts; blocks self-delete.
+SUPER_ADMIN only. `PUT` validates `updateAdminZodSchema` (empty payload → 400). Delete soft-deletes admin/user, sets `UserStatus.DELETED`, wipes sessions & accounts; blocks self-delete.
 
 ---
 
 #### API: `POST /api/v1/speciality/create-speciality`
 
-Multipart: `file` + body/`data` JSON `{ title, description? }`. Icon = uploaded Cloudinary path. Auth middleware commented out.
+Multipart: `file` + body/`data` JSON `{ title, description? }`. Icon = uploaded Cloudinary path. **Auth:** ADMIN | SUPER_ADMIN.
 
 ---
 
 #### API: `GET /api/v1/speciality`
 
-PATIENT only. Returns all specialities (no soft-delete filter).
+All four roles. Returns paginated specialities, filtering `isDeleted: false`.
 
 ---
 
 #### API: `DELETE|PATCH /api/v1/speciality/:id`
 
-ADMIN | SUPER_ADMIN. Delete is **hard** delete despite `isDeleted` column.
+ADMIN | SUPER_ADMIN. Delete is **soft** delete (`isDeleted: true`); already-deleted → 404.
 
 ---
 
@@ -819,25 +829,32 @@ Access/session maxAge: 1 day; refresh: 7 days (`token.ts`).
 | SUPER_ADMIN | Admin | Yes¹ | Yes (create-admin) | Yes | Yes |
 | ADMIN | Admin list | Yes¹ | No | No | No |
 | PATIENT | Admin list | Yes¹ | No | No | No |
-| — | Admin by id | Public | — | — | — |
-| SUPER_ADMIN / ADMIN | Speciality | No (list is PATIENT-only) | Public create² | Yes | Yes |
-| PATIENT | Speciality list | Yes | No | No | No |
+| ADMIN, SUPER_ADMIN | Admin by id | Yes | — | — | — |
+| SUPER_ADMIN / ADMIN | Speciality | Yes | Yes | Yes | Yes (soft-delete) |
+| DOCTOR / PATIENT | Speciality list | Yes | No | No | No |
 | SUPER_ADMIN / ADMIN | Schedule | Yes | Yes | Yes | Yes |
 | DOCTOR | Schedule | Yes | No | No | No |
 | Any authenticated role | Auth me / logout / change-password | Yes | — | — | — |
 | PATIENT | Payment create-intent | — | Yes³ | — | — |
-| Public | Doctors CRUD | Yes | Via users/create-doctor (public) | Yes | Soft-delete public |
+| Public | Doctors read | Yes⁴ | — | — | — |
+| ADMIN, SUPER_ADMIN | Doctors write | — | Via users/create-doctor | Yes | Yes (soft-delete) |
+| PATIENT | Appointments | Own only (`/my`, owned `/:id`) | Yes (book) | Cancel own | — |
+| DOCTOR | Appointments | Own only (`/my`, owned `/:id`) | No | Cancel own | — |
+| ADMIN, SUPER_ADMIN | Appointments | Yes (any `/:id`) | No | Cancel any | — |
+| DOCTOR | Doctor-schedules | Own (`/my`) | Yes (`/my`) | Own (`/my`) | Own unbooked (`/my/:id`) |
+| ADMIN, SUPER_ADMIN | Doctor-schedules | Yes (all + by composite key) | No | No | No |
+| ADMIN, SUPER_ADMIN | Stats | Yes | — | — | — |
 | Public | Auth register/login/verify/forget/reset | — | Yes | — | — |
 
-¹ Admin list allows ADMIN, SUPER_ADMIN, PATIENT.  
-² Create speciality auth is commented out.  
+¹ Admin list allows ADMIN, SUPER_ADMIN, PATIENT. Detail (`/:id`) requires ADMIN or SUPER_ADMIN (PATIENT excluded — PII).  
 ³ Endpoint exists but is miswired to webhook handler.
+⁴ Doctor `GET /` + `GET /:id` stay public by decision: the consultation page needs unauthenticated doctor listing.
 
 ### Resource ownership
 
 - Admin delete: cannot delete self (`admin.service.ts`)
-- Appointment booking (unmounted): patient resolved by `user.email`
-- Doctor schedule controllers expect `req.user` ownership patterns but services are stubs
+- Appointment: PATIENT scoped by `patient.email`, DOCTOR scoped by resolved `doctorId`; ADMIN/SUPER_ADMIN bypass; cross-owner read/cancel → 403
+- Doctor schedule `/my` routes resolve the doctor from `req.user.userId`
 
 ### Where authorization is enforced
 
@@ -894,8 +911,6 @@ Provision DOCTOR and ADMIN accounts (not patient — patients use auth register)
 
 ### Partial issues
 
-* `createDoctor` missing `return result`
-* `create-doctor` unauthenticated
 * Unused import `role` from better-auth plugins in route file
 
 ### Source Files
@@ -918,7 +933,7 @@ List/get/update/soft-delete doctors.
 
 ### Authorization
 
-**None on routes** — Needs Review.
+Reads (`GET /`, `GET /:id`) are public **by decision** (consultation page needs unauthenticated doctor listing). Writes (`PUT|PATCH /:id`) require `ADMIN` / `SUPER_ADMIN`.
 
 ### Source Files
 
@@ -936,7 +951,9 @@ Admin CRUD-ish management.
 
 * Soft delete + UserStatus.DELETED + wipe Session/Account
 * Self-delete forbidden
-* Update spreads `updateData.admin` without Zod
+* `GET /:id` requires ADMIN / SUPER_ADMIN (PATIENT sees list only)
+* `GET /` is paginated via `QueryBuilder` (excludes soft-deleted)
+* `PUT /:id` validates `updateAdminZodSchema` (`{ admin?: { name?, profilePhoto?, contactNumber? } }`); empty payload → 400
 
 ### Source Files
 
@@ -952,9 +969,10 @@ Medical speciality catalog with optional Cloudinary icon.
 
 ### Business Rules
 
-* Create merges `icon: req.file?.path`
-* Delete is hard delete (schema `isDeleted` unused)
-* List restricted to PATIENT role only
+* Create merges `icon: req.file?.path`; requires ADMIN / SUPER_ADMIN
+* Delete is soft delete (`isDeleted: true`); already-deleted → 404; reads filter `isDeleted: false`
+* List is paginated via `QueryBuilder` and open to all four roles
+* All handlers use `catchAsync` + `sendResponse` (201 on create)
 
 ### Source Files
 
@@ -966,7 +984,7 @@ Medical speciality catalog with optional Cloudinary icon.
 
 ### Purpose
 
-Generate and manage time-slot `Schedule` records (global slots, not yet tied via mounted doctor-schedule API).
+Generate and manage time-slot `Schedule` records (global slots, claimed by doctors via the mounted `/doctor-schedules` API).
 
 ### Business Rules
 
@@ -996,7 +1014,7 @@ Stripe webhook processing; intended payment APIs.
 ### Partial
 
 * `/create-payment-intent` miswired
-* Checkout session creation lives in unmounted appointment service
+* Stripe Checkout for appointments is deferred to a dedicated payment EPIC (appointment service currently creates an `UNPAID` payment placeholder row only)
 
 ### Source Files
 
@@ -1004,37 +1022,33 @@ Stripe webhook processing; intended payment APIs.
 
 ---
 
-## Module: Appointment — Partial / In Progress
+## Module: Appointment
 
 ### Purpose
 
-Book appointment + create Payment + Stripe Checkout Session.
+Book appointment + paginated own-appointments + ownership-gated detail + cancel. Payment stays an `UNPAID` placeholder until the payment EPIC.
 
 ### Business Rules (service implemented)
 
 * Resolve patient by authenticated email
 * Doctor must exist and not be deleted
-* DoctorSchedules composite key must exist
-* Transaction: create Appointment (`videoCallingId`), mark schedule `isBooked`, create Payment, create Stripe Checkout (`currency: "bdt"`, `unit_amount: fee * 122`)
-* Returns `paymentUrl`
+* DoctorSchedules composite key must exist; `isBooked === true` → 400, plus atomic `updateMany({ isBooked: false })` slot claim inside the transaction
+* Transaction: create Appointment (`videoCallingId: randomUUID()`), claim slot, create `UNPAID` Payment placeholder — no Stripe call
+* `GET /my`: PATIENT scoped by email, DOCTOR by resolved `doctorId`, ADMIN/SUPER_ADMIN unscoped; paginated via `QueryBuilder`
+* `GET /:id`: cross-owner read → 403
+* `PATCH /:id/cancel`: only `SCHEDULED` → `CANCELED` (else 400); frees the slot only when no other active appointment holds it; PAID refunds stay manual
 
 ### Endpoints
 
-**Not mounted.** `appointment.routes.ts` and `appointment.validation.ts` are empty files. Controller defines `bookAppointment` but does not export an `AppointmentController` object. `getMyAppointments` is an incomplete stub.
-
-### Bugs / gaps
-
-* `import { uuidv7 } from "zod"` is incorrect
-* Unused `import app from "../../../app"`
-* Stripe Checkout call inside DB transaction (external side-effect)
+Mounted at `/api/v1/appointments`: `POST /` (PATIENT, Zod-validated), `GET /my` (PATIENT, DOCTOR), `GET /:id` + `PATCH /:id/cancel` (PATIENT, DOCTOR, ADMIN, SUPER_ADMIN). Returns `{ appointment, paymentData }` with 201 on booking — no `paymentUrl` in this EPIC.
 
 ### Source Files
 
-`appointment.service.ts`, `appointment.controller.ts`, `appointment.interface.ts`
+`appointment.service.ts`, `appointment.controller.ts`, `appointment.interface.ts`, `appointment.routes.ts`, `appointment.validation.ts`
 
 ---
 
-## Module: Doctor Schedule — Partial / In Progress
+## Module: Doctor Schedule
 
 ### Purpose
 
@@ -1042,14 +1056,11 @@ Assign schedules to doctors (`DoctorSchedules`).
 
 ### Status
 
-* Service methods are empty stubs
-* Controller implemented against expected service API (signature mismatches with stubs)
-* Routes file empty; IndexRoutes mount commented
-* constant/utils/validator files empty
+Implemented and mounted at `/api/v1/doctor-schedules`: `createMany` slot claims, `QueryBuilder` lists, `isBooked: false` guards on update/delete, composite-key lookup.
 
 ### Source Files
 
-`doctorschedule.controller.ts`, `doctorschedule.service.ts`, `doctorschedule.interface.ts`, empty route/validator/constant/utils
+`doctorschedule.controller.ts`, `doctorschedule.service.ts`, `doctorschedule.interface.ts`, `doctorschedule.routes.ts`, `doctorschedule.validator.ts`, `doctorschedule.constant.ts`
 
 ---
 
@@ -1075,7 +1086,7 @@ PostgreSQL + Prisma 7 multi-file schema (`server/prisma/schema/`).
 | Doctor | `isDeleted`, `deletedAt` | Yes |
 | Admin | `isDeleted`, `deletedAt` | Yes (status also set on user) |
 | Patient | `isDeleted`, `deletedAt` | Schema only |
-| Speciality | `isDeleted` | Schema only (hard delete used) |
+| Speciality | `isDeleted` | Yes (soft delete; reads filter `isDeleted: false`) |
 
 ### Enums
 
@@ -1246,13 +1257,14 @@ Standard Prisma migrate workflow; no custom rollback docs/scripts in repo.
 | `user.service` createDoctor / createAdmin | Profile (+ specialities) |
 | `doctor.service` update / delete | Profile/specialities; soft-delete cascade |
 | `admin.service` delete | Soft-delete + session/account wipe |
-| `appointment.service` book | Appointment + book slot + payment + Stripe session |
+| `appointment.service` book | Appointment + atomic slot claim + `UNPAID` payment placeholder (no external calls in tx) |
+| `appointment.service` cancel | Status flip + conditional slot release |
 | `payment.service` webhook | Appointment + payment status update |
 
 ### Race-condition / locking
 
 * Schedule create checks duplicates with `findFirst` then `create` — **not atomic** (TOCTOU race possible)
-* Booking marks `isBooked` without checking prior `isBooked === false` inside transaction — double-booking risk
+* Booking pre-checks `isBooked` and re-asserts it atomically via `updateMany({ isBooked: false })` inside the transaction — concurrent double-booking returns 400
 * No pessimistic/optimistic locking beyond unique constraints
 
 ### Idempotency
@@ -1261,10 +1273,7 @@ Standard Prisma migrate workflow; no custom rollback docs/scripts in repo.
 
 ### Potential improvements (not claiming bugs as exploits)
 
-* Move Stripe API call outside DB transaction
-* Enforce `isBooked: false` condition when booking
 * Atomic schedule uniqueness constraint if required
-* Return value from `createDoctor` transaction
 
 ---
 
@@ -1291,8 +1300,9 @@ Database constraints (unique email, FKs, enums)
 | Schedule | create / update | Yes |
 | Doctor | updateDoctorZodSchema | **No** |
 | Auth | — | **No** |
-| Admin update | — | **No** |
-| Appointment | empty validation file | **No** |
+| Admin update | updateAdminZodSchema | Yes |
+| Appointment book | bookAppointmentZodSchema | Yes |
+| Appointment cancel | — (dedicated no-body route) | N/A |
 
 ### Multipart
 
@@ -1302,9 +1312,9 @@ Database constraints (unique email, FKs, enums)
 
 Multer accepts uploads via Cloudinary storage; **no explicit MIME allowlist / size limit** in `multer.config.ts`.
 
-### validateRequest caveat
+### validateRequest behavior
 
-On Zod failure it calls `next(error)` then still assigns `req.body = parseData.data` and calls `next()` again (**missing `return`**) — Potential bug.
+On Zod failure it does `return next(error)` — a single `next` call; the success path assigns the parsed body and calls `next()` once. (Fixed 2026-10-06; previously fell through to a double-`next`.)
 
 ---
 
@@ -1333,7 +1343,7 @@ On Zod failure it calls `next(error)` then still assigns `req.body = parseData.d
 
 ### Logging
 
-Console in development for global errors; various `console.log` in auth middleware and services. No redaction of tokens (auth middleware logs session/access tokens — security concern).
+Console in development for global errors. Token/session `console.log`s were removed from `checkAuth.ts` and admin payload logs from `admin.service.ts` (2026-10-06) — do not log tokens, cookies, OTP, or health fields.
 
 ---
 
@@ -1358,10 +1368,7 @@ Console in development for global errors; various `console.log` in auth middlewa
 
 | Issue | Where | Why it matters | Suggested remediation |
 | ----- | ----- | -------------- | --------------------- |
-| Unauthenticated doctor create/update/delete | `user.route.ts`, `doctor.routes.ts` | Anyone can mutate doctor data | Require ADMIN/SUPER_ADMIN (and ownership rules) |
-| Create speciality auth commented out | `speciality.routes.ts` | Unauthenticated catalog writes | Re-enable `checkAuth` |
-| Public `GET /admin/:id` | `admin.route.ts` | Admin PII exposure | Require auth + role |
-| Tokens logged to console | `checkAuth.ts` | Credential leakage in logs | Remove token logs |
+| Unauthenticated doctor reads | `doctor.routes.ts` | Intentional (consultation listing); writes require ADMIN/SUPER_ADMIN | No change — documented decision |
 | Access/refresh tokens also returned in JSON body | auth controller | Increases XSS token theft surface if body cached/logged | Prefer cookie-only |
 | `secure: true` + `sameSite: none` always | `token.ts` | Local HTTP may break; intentional for cross-site | Document; env-toggle for dev |
 | Stripe webhook after `express.json()` | `app.ts` | Raw body may be consumed → signature failures / weaker verify | Mount webhook **before** JSON parser with `express.raw` only |
@@ -1370,7 +1377,6 @@ Console in development for global errors; various `console.log` in auth middlewa
 | Multer without size/type limits | `multer.config.ts` | Large/malicious uploads | Restrict MIME + size |
 | `.env.example` / env name mismatch | Cloudinary key names | Misconfiguration risk | Align names |
 | `create-payment-intent` miswired | `payment.route.ts` | Confusing / broken payment surface | Implement real intent or remove |
-| Session TTL hardcoded / env unused | `lib/auth.ts` | Config drift | Wire env vars |
 
 ---
 
@@ -1567,10 +1573,11 @@ POST /api/v1/auth/me
   → prisma.user.findUnique with nested includes
 ```
 
-### Create doctor (public as mounted)
+### Create doctor (ADMIN/SUPER_ADMIN)
 
 ```text
 POST /api/v1/users/create-doctor
+  → checkAuth(ADMIN, SUPER_ADMIN)
   → Zod validate
   → Ensure specialities exist
   → signUpEmail(role=DOCTOR, needPasswordChange)
@@ -1588,18 +1595,20 @@ POST /api/v1/schedule (ADMIN/SUPER_ADMIN)
   → Create Schedule rows
 ```
 
-### Appointment booking + payment (implemented in service, HTTP not mounted)
+### Appointment booking + payment placeholder (mounted)
 
 ```text
-[Intended] POST /api/v1/appointments (NOT MOUNTED)
-  → Auth patient
-  → Load patient / doctor / doctorSchedule
+POST /api/v1/appointments (PATIENT, Zod-validated)
+  → Load patient / doctor (not deleted) / doctorSchedule
+  → 400 if slot already booked
   → TX:
-       create Appointment
-       mark DoctorSchedules.isBooked
-       create Payment
-       Stripe checkout.sessions.create
-  → Return paymentUrl
+       create Appointment (videoCallingId: randomUUID())
+       atomic claim DoctorSchedules.isBooked (updateMany where isBooked:false)
+       create UNPAID Payment placeholder (no Stripe call in this EPIC)
+  → 201 { appointment, paymentData }
+GET /api/v1/appointments/my (PATIENT, DOCTOR — ownership-scoped, paginated)
+GET /api/v1/appointments/:id (ownership gate; cross-owner → 403)
+PATCH /api/v1/appointments/:id/cancel (SCHEDULED → CANCELED; frees slot when unheld)
 POST /webhook (mounted)
   → Verify Stripe signature
   → Idempotent update Payment + Appointment.paymentStatus
@@ -1622,14 +1631,14 @@ PATCH /api/v1/doctors/:id
 | JWT + session dual auth | Yes | Yes | Yes | — | Complete |
 | Email verification OTP | Yes | Yes | Yes | Email | Complete |
 | Forgot / reset password | Yes | Yes | Yes | Email | Complete |
-| Create doctor | Yes | Partial (missing return) | Yes | Better Auth | Partial |
+| Create doctor | Yes | Yes | Yes | Better Auth | Complete |
 | Create admin | Yes | Yes | Yes | Better Auth | Complete |
-| Doctor CRUD | Yes | Yes | Yes | — | Needs Review (no auth) |
-| Admin management | Yes | Yes | Yes | — | Partial (public get-by-id) |
-| Speciality CRUD | Yes | Yes | Yes | Cloudinary | Partial (auth gaps) |
+| Doctor CRUD | Yes | Yes | Yes | — | Complete (reads public by decision; writes ADMIN/SUPER_ADMIN) |
+| Admin management | Yes | Yes | Yes | — | Complete (detail gated; list paginated) |
+| Speciality CRUD | Yes | Yes | Yes | Cloudinary | Complete (auth gated; soft-delete; paginated) |
 | Schedule CRUD | Yes | Yes | Yes | — | Complete |
-| Doctor ↔ Schedule assignment | No (empty) | Stubs | Yes (model) | — | Partial |
-| Appointment booking | No | Partial | Yes | Stripe | Partial |
+| Doctor ↔ Schedule assignment | Yes | Yes | Yes (model) | — | Complete |
+| Appointment booking | Yes | Yes | Yes | — (Stripe deferred) | Complete (no paymentUrl in this EPIC) |
 | Payment webhook | Yes | Yes | Yes | Stripe | Complete |
 | Payment intent API | Miswired | No | Yes | Stripe | Needs Review |
 | Prescriptions | No | No | Yes | — | Missing |
@@ -1638,7 +1647,8 @@ PATCH /api/v1/doctors/:id
 | Patient health data | No | No | Yes | — | Missing |
 | Patient profile CRUD | No | No | Yes | — | Missing |
 | OAuth | No | No | Account model | — | Missing |
-| Seeders / tests / OpenAPI | No | No | — | — | Missing |
+| Seeders | — | Demo seed (`prisma/seed.ts`: schedules + appointments + payments + reviews) | — | — | Complete |
+| Tests / OpenAPI | No | No | — | — | Missing |
 | Queues / cache / rate limit | No | No | — | — | Missing |
 
 ---
@@ -1649,23 +1659,25 @@ PATCH /api/v1/doctors/:id
 
 * Patient register/login/logout/me/refresh/change-password
 * Email OTP verify + forget/reset password
-* Admin create (SUPER_ADMIN) + list/update/soft-delete (with caveats)
+* Doctor creation (ADMIN/SUPER_ADMIN, returns result, rollback on failure)
+* Admin create (SUPER_ADMIN) + paginated list / gated detail / validated update / soft-delete
 * Schedule slot generation and CRUD (role-gated)
-* Doctor list/get/update/soft-delete logic (but unauthenticated routes)
-* Speciality create/list/update/delete (auth inconsistent)
+* Doctor list/get (public by decision) + gated update/soft-delete
+* Speciality create/list/update/soft-delete (ADMIN-gated writes, paginated reads)
+* Doctor ↔ schedule assignment (role-gated, `isBooked` guards, composite-key lookup)
+* Appointment booking + own-list + ownership-gated detail + cancel with atomic slot claim (Stripe deferred: `UNPAID` placeholder, no `paymentUrl`)
+* Session TTL wired from `BETTER_AUTH_SESSION_*` env
+* Single-`next` Zod failure path in `validateRequest`
+* No token/session/admin payload `console.log`s in auth middleware and services
 * Stripe webhook payment confirmation with idempotency
+* Demo seed (`prisma/seed.ts` + `migrations.seed` config)
 * Prisma schema covering core healthcare entities
 * Global error handling + Zod error mapping
 * Cloudinary upload path for speciality icons
 
 ## Partially Implemented
 
-* Doctor creation (no auth; missing return)
-* Payment module HTTP API (miswired create-intent)
-* Appointment booking (service exists; routes empty / unmounted; controller export incomplete)
-* Doctor schedules (controller present; empty services/routes)
-* Soft-delete flags on Patient/Speciality unused
-* Env vars for Better Auth session TTL loaded but unused
+* Payment module HTTP API (miswired create-intent; checkout deferred to payment EPIC)
 * `prd.md` outdated vs payment additions
 
 ## Not Implemented / Missing
@@ -1674,7 +1686,6 @@ PATCH /api/v1/doctors/:id
 * Patient management module
 * Better Auth HTTP handler mount
 * OAuth/social login
-* Seeders (initial SUPER_ADMIN)
 * Tests, OpenAPI, rate limiting, Redis cache, job queues
 * Graceful shutdown / production Docker start path
 * Dedicated health/metrics endpoints
@@ -1682,25 +1693,22 @@ PATCH /api/v1/doctors/:id
 ## Technical Debt
 
 * Inconsistent naming (`globalErroHandler`, `hadnleZodError`, mixed `*.route`/`*.routes`)
-* Empty placeholder files in appointment & doctorschedule
-* `any` usage (e.g. admin update payload)
-* Unused imports (`get` from `node:http`, better-auth `role`, `app` import in appointment service)
+* `any` usage (residual spots outside admin/speciality updates)
+* Unused imports (`get` from `node:http`, better-auth `role` in user route)
 * Dual auth complexity without Better Auth route mount
-* validateRequest double-`next` on failure
 
 ## Potential Security Gaps
 
-See Section 15 — especially unauthenticated doctor mutations, public admin get-by-id, token logging, webhook body parsing order, missing rate limits.
+See Section 15 — remaining items are unauthenticated-by-decision doctor reads, tokens in auth JSON body, webhook body parsing order, missing rate limits.
 
 ## Potential Performance Issues
 
-Unbounded admin/speciality lists; per-slot schedule DB round-trips; deep includes on me/doctor-by-id; Stripe inside transactions.
+Per-slot schedule DB round-trips; deep includes on me/doctor-by-id.
 
 ## Architectural Concerns
 
 * Hybrid auth without clear single source of session truth for clients
-* Domain models ahead of HTTP modules (appointments/prescriptions/reviews)
-* Controllers/services stubs with signature drift (doctor schedule)
+* Domain models ahead of HTTP modules (prescriptions/reviews)
 * No repository/test boundaries
 * Dockerfile starts `dev` rather than compiled production server
 
@@ -1769,7 +1777,10 @@ pnpm start          # node dist/server.js
 | Admin | `/api/v1/admin` |
 | Speciality | `/api/v1/speciality` |
 | Schedule | `/api/v1/schedule` |
-| Payment (broken intent) | `/api/v1/payment/create-payment-intent` |
+| Payment (intent miswired) | `/api/v1/payment/create-payment-intent` |
+| Appointments | `/api/v1/appointments` |
+| Doctor schedules | `/api/v1/doctor-schedules` |
+| Stats | `/api/v1/stats` |
 | Stripe webhook | `POST /webhook` |
 
 ### Important Modules
@@ -1783,8 +1794,9 @@ pnpm start          # node dist/server.js
 | Speciality | `server/src/app/modules/speciality/` |
 | Schedule | `server/src/app/modules/schedule/` |
 | Payment | `server/src/app/modules/payment/` |
-| Appointment (partial) | `server/src/app/modules/appointment/` |
-| DoctorSchedule (partial) | `server/src/app/modules/doctorschedule/` |
+| Appointment | `server/src/app/modules/appointment/` |
+| DoctorSchedule | `server/src/app/modules/doctorschedule/` |
+| Stats | `server/src/app/modules/stats/` |
 | Prisma schema | `server/prisma/schema/` |
 | Better Auth | `server/src/app/lib/auth.ts` |
 | Prisma client | `server/src/app/lib/prisma.ts` |
@@ -1794,9 +1806,10 @@ pnpm start          # node dist/server.js
 
 ## Final Verification Notes
 
-* All mounted routes from `routes/index.ts` + `app.ts` are listed.
-* Unmounted appointment/doctor-schedule work is marked Partial.
+* All mounted routes from `routes/index.ts` + `app.ts` are listed (no commented mounts remain).
+* Appointment/doctor-schedule/stats work is marked Complete.
 * Prisma-only domains are marked Missing for HTTP.
+* Stripe checkout for appointments is deferred to a dedicated payment EPIC.
 * No secret values included.
 * Where `prd.md` / `.env.example` disagree with code, **implementation wins** and discrepancies are noted.
 

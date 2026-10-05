@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { Role, UserStatus } from "../../generated/prisma/enums";
+import { envVars } from "../config/env";
 
 import { bearer, emailOTP } from "better-auth/plugins";
 import { sendEmail } from "../utils/email";
@@ -99,11 +100,11 @@ export const auth = betterAuth({
     })
   ],
   session: {
-    expiresIn: 60 * 60 * 60 * 24 * 1, // 1 day in seconds
-    updateAge: 60 * 60 * 60 * 24 * 1,
+    expiresIn: Number(envVars.BETTER_AUTH_SESSION_EXPIRES_IN),
+    updateAge: Number(envVars.BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE),
     cookieCache: {
       enabled: true,
-      maxAge: 60 * 60 * 60 * 24 * 1
+      maxAge: Number(envVars.BETTER_AUTH_SESSION_EXPIRES_IN)
     }
   }
   ,

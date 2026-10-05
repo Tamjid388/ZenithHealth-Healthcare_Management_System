@@ -4,7 +4,7 @@ import { sendResponse } from "../../shared/sendResponse";
 import { Request, Response } from "express";
 
 import status from "http-status";
-import { IReqUser } from "../../interfaces";
+import { IQueryParams, IReqUser } from "../../interfaces";
 
 const getAdminById = catchAsync(
     async (req: Request, res: Response) => {
@@ -21,13 +21,14 @@ const getAdminById = catchAsync(
     }
 )
 const getAllAdmins = catchAsync(async(req: Request, res: Response)=>{
-    console.log("Route hit") 
-    const result=await AdminService.getAllAdmins()
+    const query = req.query;
+    const result=await AdminService.getAllAdmins(query as IQueryParams)
         sendResponse(res, {
         httpStatusCode:status.OK,
         success: true,
         message: "All Admins fetched successfully",
-        data: result
+        data: result.data,
+        meta: result.meta,
     })
 })
 

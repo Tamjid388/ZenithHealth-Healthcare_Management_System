@@ -4,6 +4,8 @@ import { checkAuth } from "../../middleware/checkAuth";
 import { DoctorController } from "./doctor.controller";
 
 const router = Router();
+// Reads stay public by decision: the consultation page needs unauthenticated
+// doctor listing. Writes below are gated to ADMIN / SUPER_ADMIN.
 router.get("/", DoctorController.getAllDoctors);
 
 router.get("/:id", DoctorController.getDoctorById);

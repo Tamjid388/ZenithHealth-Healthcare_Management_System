@@ -7,7 +7,7 @@ const validateRequest = (zodSchema: z.ZodObject) => {
     }
     const parseData = zodSchema.safeParse(req.body)
     if (!parseData.success) {
-      next(parseData.error)
+      return next(parseData.error)
     }
     req.body = parseData.data
     next()

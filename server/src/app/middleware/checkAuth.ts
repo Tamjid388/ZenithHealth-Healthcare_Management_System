@@ -10,7 +10,6 @@ export const checkAuth = (...authRoles: Role[]) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
             const sessionToken = cookieUtils.getcookie(req, "better-auth.session_token")
-            console.log("1. sessionToken", sessionToken)
             if (!sessionToken) {
                 throw new AppError(401, "Unauthorized")
             }
@@ -42,7 +41,6 @@ export const checkAuth = (...authRoles: Role[]) => {
                         res.setHeader("X-Session-Refresh", "true")
                         res.setHeader("X-Session-Expires-At", expiresAt.toISOString())
                         res.setHeader("X-Time-Remaining", timeRemaining.toString())
-                        console.log("Session Expiring Soon")
                     }
                     if (user.status === UserStatus.BLOCKED || user.status === UserStatus.DELETED) {
                         throw new AppError(403, "Your account has been blocked or deleted")
@@ -62,16 +60,13 @@ export const checkAuth = (...authRoles: Role[]) => {
                 }
             }
             const accessToken = cookieUtils.getcookie(req, "accessToken")
-            console.log("2. accessToken", accessToken)
             if (!accessToken) {
                 throw new AppError(401, "Unauthorized")
             }
             const verifyToken = jwtUtils.verifyToken(accessToken, envVars.ACCESS_TOKEN_SECRET)
-            console.log("3. verifyToken", verifyToken)
             if (!verifyToken.success) {
                 throw new AppError(401, "Unauthorized")
             }
-            console.log("4. verifyToken", verifyToken)
             if (authRoles.length > 0 && !authRoles.includes(verifyToken.data!.role)) {
                 throw new AppError(403, "You are not authorized to access this resource")
             }

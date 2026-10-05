@@ -1,11 +1,17 @@
 import status from "http-status";
 import AppError from "../../errorHelpers/AppError";
 import { prisma } from "../../lib/prisma";
-import { IReqUser } from "../../interfaces";
-import { th } from "zod/locales";
+import { IQueryParams, IReqUser } from "../../interfaces";
 import { UserStatus } from "../../../generated/prisma/enums";
+import { Admin, Prisma } from "../../../generated/prisma/client";
+import { QueryBuilder } from "../../utils/queryBuilder";
+import { IUPdateAdmin } from "./admin.interface";
+
+const adminSearchableFields = ["name", "email", "contactNumber"];
+
+const adminFilterableFields = ["name", "email", "isDeleted"];
+
 const getAdminById = async (id: string) => {
-  console.log("Fetching admin with ID:", id);
   const admin = await prisma.admin.findUnique({
     where: {
       id,
@@ -18,19 +24,31 @@ const getAdminById = async (id: string) => {
     throw new AppError(status.NOT_FOUND, "Admin not found");
   }
 
-  console.log("Admin fetched:", admin);
   return admin;
 };
 
-const getAllAdmins = async () => {
-  const admins = await prisma.admin.findMany({
-    include: {
-      user: true,
-    },
+const getAllAdmins = async (query: IQueryParams) => {
+  const queryBuilder = new QueryBuilder<
+    Admin,
+    Prisma.AdminWhereInput,
+    Prisma.AdminInclude
+  >(prisma.admin, query, {
+    searchableFields: adminSearchableFields,
+    filterableFields: adminFilterableFields,
   });
-  return admins;
+
+  const result = await queryBuilder
+    .search()
+    .filter()
+    .where({ isDeleted: false })
+    .paginate()
+    .include({ user: true })
+    .sort()
+    .execute();
+
+  return result;
 };
-const updateAdmin = async (id: string, updateData: any) => {
+const updateAdmin = async (id: string, updateData: IUPdateAdmin) => {
   const isAdminExist = await prisma.admin.findUnique({
     where: {
       id,
@@ -40,6 +58,9 @@ const updateAdmin = async (id: string, updateData: any) => {
     throw new AppError(status.NOT_FOUND, "Admin Or Super Admin not found");
   }
   const { admin } = updateData;
+  if (!admin || Object.keys(admin).length === 0) {
+    throw new AppError(status.BAD_REQUEST, "No admin data provided to update");
+  }
   const updatedAdmin = await prisma.admin.update({
     where: { id },
     data: { ...admin },
