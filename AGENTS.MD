@@ -12,7 +12,7 @@ Run commands inside `client/` or `server/`, not the repo root.
 - Mounted APIs: `server/src/app/routes/index.ts` (commented = not public)
 - Schema: `server/prisma/schema/`
 - Client gate: `client/src/proxy.ts` + `client/src/lib/authUtlils.ts` (filename is misspelled; do not rename)
-- Backend as-built: `BACKEND_SYSTEM_DOCUMENTATION.md` (on-demand; verify against `routes/index.ts`)
+- Backend as-built: `docs/BACKEND_SYSTEM_DOCUMENTATION.md` (on-demand; verify against `routes/index.ts`)
 
 Package-specific: `client/AGENTS.md`, `server/AGENTS.md`. Cursor rules in `.cursor/rules/` are committed.
 

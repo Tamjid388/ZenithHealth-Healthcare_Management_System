@@ -27,6 +27,7 @@ API: `http://localhost:5000/api/v1`. Health-style root: `GET /`. Stripe webhook:
 | `pnpm generate` | Prisma Client |
 | `pnpm migrate` | `prisma migrate dev` |
 | `pnpm studio` | Prisma Studio |
+| `pnpm seed` | Demo appointments, payments, and reviews (needs an existing patient and doctor) |
 | `pnpm stripe:webhook` | Forward to `localhost:5000/webhook` |
 | `pnpm test` | Placeholder — **exits 1**. Do not run as a check. |
 

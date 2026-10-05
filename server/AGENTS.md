@@ -13,7 +13,7 @@ Express 5 + TypeScript ESM API. Prisma 7 + PostgreSQL. Better Auth is used via `
 - Schema SoT: `prisma/schema/`
 - Env names: `src/app/config/env.ts` and `.env.example`
 - Auth: `src/app/lib/auth.ts`, `src/app/middleware/checkAuth.ts`, `../docs/auth/hybrid-auth.md`
-- As-built narrative (verify routes first): `../BACKEND_SYSTEM_DOCUMENTATION.md`
+- As-built narrative (verify routes first): `../docs/BACKEND_SYSTEM_DOCUMENTATION.md`
 - Do not treat `prd.md` as a live API contract.
 
 ## Commands

@@ -12,7 +12,7 @@ alwaysApply: true
 - Package manager is **pnpm**. Do not add npm or yarn lockfiles. Do not pin invented versions.
 - After meaningful edits, run `pnpm lint` in the **touched package** (`client/` or `server/`). Run `pnpm generate` if Prisma schema changed. Do not run server `pnpm test` (placeholder fails).
 - If a router is commented out in `server/src/app/routes/index.ts`, it is not a live API. Do not implement UI as if it were mounted unless the task says so.
-- Do not rename misspelled identifiers (`authUtlils.ts`, `patients-manegement`, `globalErroHandler`) unless asked.
+- Do not rename misspelled identifiers (`authUtlils.ts`, `globalErroHandler`) unless asked.
 
 ## Example
 

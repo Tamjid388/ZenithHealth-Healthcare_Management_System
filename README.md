@@ -1,8 +1,10 @@
 # ZenithHealth
 
-Healthcare management system: **Next.js 16** UI in `client/` and **Express 5 + Prisma 7 + PostgreSQL** API in `server/`. Not a pnpm workspace. There is no root `package.json`.
+Healthcare management system: **Next.js 16** UI in `client/` and **Express 5 + Prisma 7 + PostgreSQL** API in `server/`. Not a pnpm workspace. There is no root `package.json` — run `pnpm` inside `client/` or `server/`.
 
-Agent instructions: [`AGENTS.md`](AGENTS.md). Doc map: [`docs/INDEX.md`](docs/INDEX.md).
+This is not a complete product: appointment HTTP is **unmounted**, and many dashboard pages are stubs. Do not assume booking is live.
+
+Package runbooks: [`client/README.md`](client/README.md), [`server/README.md`](server/README.md). Agent instructions: [`AGENTS.md`](AGENTS.md). Doc map: [`docs/INDEX.md`](docs/INDEX.md).
 
 ## Requirements
 
@@ -44,6 +46,13 @@ Local Stripe webhook forward (server): `pnpm stripe:webhook` → `localhost:5000
 | `server/` | REST `/api/v1`, Stripe webhook, Prisma |
 
 Dockerfiles in each package are **dev-oriented**, not production images.
+
+## Tech stack
+
+| Layer | Stack |
+|-------|--------|
+| Frontend (`client/`) | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, shadcn / `@base-ui/react`, TanStack Form / Query / Table, Axios, Zod |
+| Backend (`server/`) | Express 5, TypeScript (ESM), Prisma 7, PostgreSQL, Better Auth, JWT cookies, Zod, Stripe, Cloudinary, Nodemailer |
 
 ## License
 

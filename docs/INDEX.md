@@ -10,7 +10,8 @@ Configuration and code stay canonical. Read these docs only when the task needs 
 | Mounted HTTP paths | `server/src/app/routes/index.ts` then the module `*.route(s).ts` |
 | Database fields | `server/prisma/schema/` |
 | Env names | `server/src/app/config/env.ts`, `server/.env.example`, `client/.env.example` |
-| Backend narrative (on-demand) | [`BACKEND_SYSTEM_DOCUMENTATION.md`](../BACKEND_SYSTEM_DOCUMENTATION.md) — **verify** `routes/index.ts` first |
+| Product features, scope, status (all roles) | [`prd.md`](prd.md) |
+| Backend narrative (on-demand) | [`BACKEND_SYSTEM_DOCUMENTATION.md`](BACKEND_SYSTEM_DOCUMENTATION.md) — **verify** `routes/index.ts` first |
 | Older backend write-up | `server/prd.md` (superseded; not a live contract) |
 
 Do not always-load the as-built backend file. Do not copy APIs from README or `prd.md`.
