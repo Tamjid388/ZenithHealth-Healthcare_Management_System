@@ -7,7 +7,7 @@ export const scheduleFilterableFields = [
   // 'appointments.doctors.id',
 ];
 
-export const scheduleSearchableFields = ["id", "startDateTime", "endDateTime"];
+export const scheduleSearchableFields = ["id"];
 
 export const scheduleIncludeConfig: Partial<
   Record<

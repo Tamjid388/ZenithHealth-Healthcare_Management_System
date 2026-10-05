@@ -100,6 +100,19 @@ const getScheduleById = async (id: string) => {
     where: {
       id: id,
     },
+    include: {
+      appointments: {
+        include: {
+          doctor: true,
+          patient: true,
+        },
+      },
+      doctorSchedules: {
+        include: {
+          doctor: true,
+        },
+      },
+    },
   });
   return schedule;
 };

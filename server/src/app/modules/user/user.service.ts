@@ -104,12 +104,14 @@ const createDoctor = async (payload: IDoctorPayload) => {
             return doctor
 
         })
+        return result
     } catch (error) {
         await prisma.user.delete({
             where: {
                 id: userData.user.id
             }
         })
+        throw error
     }
 }
 const createAdmin = async (payload: IAdminPayload) => {

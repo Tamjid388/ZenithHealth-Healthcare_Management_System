@@ -17,7 +17,7 @@ export interface IUpdateDoctor {
         registrationNumber?: string;
         gender?: Gender;
         appointmentFee?: number;
-        qualification?: string;
+        qualifications?: string;
         designation?: string;
         currentWorkingPlace?: string;
     }

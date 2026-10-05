@@ -9,7 +9,12 @@ import { Role } from "../../../generated/prisma/enums";
 
 const router = Router()
 
-router.post("/create-doctor", validateRequest(createDoctorZodSchema), userController.createDoctor)
+router.post(
+  "/create-doctor",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  validateRequest(createDoctorZodSchema),
+  userController.createDoctor,
+)
 
 router.post("/create-admin",validateRequest(createAdminZodSchema)
 ,checkAuth(Role.SUPER_ADMIN)

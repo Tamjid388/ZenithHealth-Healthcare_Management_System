@@ -16,7 +16,7 @@ router.post("/create-speciality",
     validateRequest(SpecialityZodValidation.CreateSpecialityZodSchema),
     SpecialityController.createSpeciality);
 
-router.get("/", checkAuth(Role.PATIENT), SpecialityController.getAllSpecialities);
+router.get("/", checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.DOCTOR, Role.PATIENT), SpecialityController.getAllSpecialities);
 
 
 router.delete("/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), SpecialityController.deleteSpecialityById);
