@@ -11,7 +11,7 @@ export default function CommonProtectedLayout({
 }>) {
   return (
   <Fragment>
-    <h1 className="text-green-500 font-bold text-2xl">Common Protected Layout</h1>
+    <h1 className="text-primary font-bold text-2xl">Common Protected Layout</h1>
     {children}
   </Fragment>
   );

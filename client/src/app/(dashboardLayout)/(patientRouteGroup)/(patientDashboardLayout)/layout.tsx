@@ -11,7 +11,7 @@ export default function PatientDashboardLayout({
 }>) {
   return (
   <Fragment>
-    <h1 className="text-green-500 font-bold text-2xl">Patient Dashboard Layout</h1>
+    <h1 className="text-primary font-bold text-2xl">Patient Dashboard Layout</h1>
     {children}
   </Fragment>
   );

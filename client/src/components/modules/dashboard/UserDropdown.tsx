@@ -1,3 +1,6 @@
+"use client";
+
+import { logoutAction } from "@/app/(commonLayout)/(auth)/logout/_action";
 import {
   Button,
   DropdownMenu,
@@ -9,8 +12,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui";
 import { UserInfo } from "@/types/user.types";
+import { useQueryClient } from "@tanstack/react-query";
 import { Key, LayoutDashboard, LogOut, User } from "lucide-react";
 import Link from "next/link";
+import { unstable_rethrow } from "next/navigation";
 
 interface UserDropdownProps {
   userInfo: UserInfo;
@@ -18,14 +23,25 @@ interface UserDropdownProps {
 }
 
 const UserDropdown = ({ userInfo, dashboardHome }: UserDropdownProps) => {
+  const queryClient = useQueryClient();
+
+  const handleLogout = async () => {
+    queryClient.clear();
+    try {
+      await logoutAction();
+    } catch (error) {
+      unstable_rethrow(error);
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant={"outline"} size={"icon"} className="rounded-full" />
+          <Button variant={"outline"} size={"icon"} className="size-10 rounded-full" />
         }
       >
-        <span className="text-sm font-semibold">
+        <span className="text-base font-semibold">
           {userInfo.name.charAt(0).toUpperCase()}
         </span>
       </DropdownMenuTrigger>
@@ -65,7 +81,9 @@ const UserDropdown = ({ userInfo, dashboardHome }: UserDropdownProps) => {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem
-          onClick={() => {}}
+          onClick={() => {
+            void handleLogout();
+          }}
           className="cursor-pointer text-red-600"
         >
           <LogOut className="mr-2 h-4 w-4" />

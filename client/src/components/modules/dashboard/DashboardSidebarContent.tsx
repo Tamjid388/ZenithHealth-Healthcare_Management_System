@@ -4,6 +4,7 @@ import { NavSection } from "@/types/dashboard.types";
 import { UserInfo } from "@/types/user.types";
 import { usePathname } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import SiteLogo from "@/components/shared/SiteLogo";
 import Link from "next/link";
 import { getIconComponent } from "@/lib/iconMapper";
 import { cn } from "@/lib/utils";
@@ -22,14 +23,14 @@ const DashboardSidebarContent = ({
   return (
     <div className="hidden md:flex h-full w-64 flex-col border-r bg-card overflow-y-auto">
       {/* Logo / Brand */}
-      <div className="flex h-16 items-center border-b px-6">
-        <Link href={dashboardHome}>
-          <span className="text-xl font-bold text-primary">PH Healthcare</span>
+      <div className="flex min-h-20 items-center border-b px-6 py-2">
+        <Link href={dashboardHome} aria-label="Zenith Health dashboard">
+          <SiteLogo size="sm" />
         </Link>
       </div>
 
       {/* Navigation Area */}
-      <ScrollArea className="flex-1 px-3 py-4">
+      <ScrollArea className="flex-1 px-3 py-2">
         <nav className="space-y-6">
           {navItems.map((section, sectionId) => (
             <div key={sectionId}>
@@ -72,7 +73,7 @@ const DashboardSidebarContent = ({
       </ScrollArea>
 
       {/* User Info At Bottom */}
-      <div className="border-t px-3 py-4">
+      <div className="border-t px-6 py-6">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
             <span className="text-sm font-semibold text-primary">

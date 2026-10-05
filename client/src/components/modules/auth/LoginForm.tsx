@@ -27,9 +27,14 @@ const DEMO_CREDENTIALS = [
     password: "password",
   },
   {
-    label: "Doctor",
+    label: "Patient",
     email: "arafat.hossain@gmail.com",
     password: "Arafat@123",
+  },
+  {
+    label: "Doctor",
+    email: "karimhossain@gmail.com",
+    password: "password123@",
   },
 ] as const;
 
@@ -100,7 +105,7 @@ export const LoginForm = ({redirectUrl}:{redirectUrl?:string}) => {
                 <p className="text-xs text-muted-foreground">
                   Quick login with demo credentials
                 </p>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   {DEMO_CREDENTIALS.map((credential) => (
                     <Button
                       key={credential.label}

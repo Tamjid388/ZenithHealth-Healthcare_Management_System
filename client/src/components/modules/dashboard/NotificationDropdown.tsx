@@ -79,12 +79,12 @@ const NotificationDropdown = () => {
     <DropdownMenu>
         <DropdownMenuTrigger
             render={
-                <Button variant={"outline"} size={"icon"} className="relative" />
+                <Button variant={"outline"} size={"icon"} className="relative size-10" />
             }
         >
-            <Bell className="h-5 w-5" />
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded full p-0 flex items-center justify-center" variant={"destructive"}>
-                <span className="text-[10px">
+            <Bell className="size-6" />
+            <Badge className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full p-0" variant={"destructive"}>
+                <span className="text-[10px] leading-none">
                     {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
             </Badge>

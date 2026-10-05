@@ -7,6 +7,7 @@ import { getIconComponent } from "@/lib/iconMapper";
 import { cn } from "@/lib/utils";
 import { NavSection } from "@/types/dashboard.types";
 import { UserInfo } from "@/types/user.types";
+import SiteLogo from "@/components/shared/SiteLogo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -22,9 +23,9 @@ const DashboardMobileSidebar = ({dashboardHome, navItems, userInfo} : DashboardM
   return (
     <div className="flex h-full flex-col overflow-y-auto">
       {/* Logo / Brand */}
-      <div className="flex h-16 items-center border-b px-6">
-        <Link href={dashboardHome}>
-          <span className="text-xl font-bold text-primary">PH Healthcare</span>
+      <div className="flex min-h-20 items-center border-b px-6 py-6">
+        <Link href={dashboardHome} aria-label="Zenith Health dashboard">
+          <SiteLogo size="sm" />
         </Link>
       </div>
 
@@ -32,7 +33,7 @@ const DashboardMobileSidebar = ({dashboardHome, navItems, userInfo} : DashboardM
 
       {/* Navigation Area  */}
 
-      <ScrollArea className="flex-1 px-3 py-4">
+      <ScrollArea className="flex-1 px-3 py-6">
         <nav className="space-y-1">
           {navItems.map((section, sectionId) => (
             <div key={sectionId}>
@@ -74,7 +75,7 @@ const DashboardMobileSidebar = ({dashboardHome, navItems, userInfo} : DashboardM
       </ScrollArea>
 
       {/* User Info */}
-      <div className="border-t p-4">
+      <div className="border-t px-6 py-6">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
           {/* if profile doesnt exist , use first letter of user name as profile photo like component */}
