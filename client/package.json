@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "cross-env NODE_OPTIONS=--disable-warning=DEP0169 next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "cross-env NODE_OPTIONS=--disable-warning=DEP0169 next start",
+    "dev:clean": "rm -rf .next && next dev",    
     "lint": "eslint"
   },
   "dependencies": {
@@ -16,7 +17,7 @@
     "@tanstack/react-form-nextjs": "^1.28.5",
     "@tanstack/react-query": "^5.94.5",
     "@tanstack/react-query-next-experimental": "^5.101.4",
-    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-table": "^9.2.3",
     "axios": "^1.13.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -44,6 +45,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^10.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
