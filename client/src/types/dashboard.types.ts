@@ -24,7 +24,7 @@ export interface IAdminDashboardData {
   patientCount : number;
   doctorCount : number;
   adminCount : number;
-  superAdminCount : number;
+  superAdminCount ?: number;
   paymentCount : number;
   userCount : number;
   totalRevenue : number;

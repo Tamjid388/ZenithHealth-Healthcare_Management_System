@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
-import { getDoctors, type Doctor } from "@/app/(commonLayout)/consultation/_action";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +16,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Doctor } from "@/types/doctors.types";
+import { getDoctors } from "@/services/doctors.service";
 
 function getInitials(name: string) {
   return name
@@ -33,14 +35,14 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
       .filter((title): title is string => Boolean(title)) ?? [];
 
   return (
-    <Card className="h-full bg-white/90 ring-zh-teal-deep/10 transition-shadow duration-300 hover:shadow-md">
+    <Card className="h-full bg-white/90 ring-zh-blue-deep/10 transition-shadow duration-300 hover:shadow-md">
       <CardHeader>
         <div className="flex items-center gap-4">
           <Avatar size="lg" className="size-16">
             {doctor.profilePhoto ? (
               <AvatarImage src={doctor.profilePhoto} alt={doctor.name} />
             ) : null}
-            <AvatarFallback className="bg-zh-foam text-zh-teal-deep">
+            <AvatarFallback className="bg-zh-foam text-zh-blue-deep">
               {getInitials(doctor.name)}
             </AvatarFallback>
           </Avatar>
@@ -69,7 +71,7 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
             {doctor.experience} yrs exp
           </span>
           <span className="inline-flex items-center gap-1 rounded-md bg-zh-foam px-2 py-1">
-            <Star className="size-3 fill-zh-teal text-zh-teal" aria-hidden />
+            <Star className="size-3 fill-zh-blue text-zh-blue" aria-hidden />
             {doctor.averageRating.toFixed(1)}
           </span>
           <span className="rounded-md bg-zh-foam px-2 py-1">
@@ -82,7 +84,7 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
             {specialties.slice(0, 3).map((title) => (
               <span
                 key={title}
-                className="rounded-md border border-zh-teal-deep/15 px-2 py-1 text-xs text-zh-teal-deep"
+                className="rounded-md border border-zh-blue-deep/15 px-2 py-1 text-xs text-zh-blue-deep"
               >
                 {title}
               </span>
@@ -91,9 +93,9 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
         ) : null}
       </CardContent>
 
-      <CardFooter className="border-zh-teal-deep/10 bg-zh-mist/40">
+      <CardFooter className="border-zh-blue-deep/10 bg-zh-mist/40">
         <Link href={`/consultation/doctor/${doctor.id}`} className="w-full">
-          <Button className="w-full bg-zh-teal text-primary-foreground hover:bg-zh-teal-deep">
+          <Button className="w-full bg-zh-blue text-primary-foreground hover:bg-zh-blue-deep">
             View profile
           </Button>
         </Link>
@@ -106,7 +108,7 @@ function DoctorListSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: 6 }).map((_, index) => (
-        <div key={index} className="space-y-3 rounded-xl bg-white p-5 ring-1 ring-zh-teal-deep/10">
+        <div key={index} className="space-y-3 rounded-xl bg-white p-5 ring-1 ring-zh-blue-deep/10">
           <div className="flex items-center gap-4">
             <Skeleton className="size-16 rounded-full" />
             <div className="space-y-2">
@@ -129,7 +131,7 @@ function DoctorListSkeleton() {
 export const DoctorList = () => {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["doctors"],
-    queryFn: getDoctors,
+    queryFn: () => getDoctors(),
   });
 console.log(data)
   const doctors = data?.data ?? [];
@@ -138,7 +140,7 @@ console.log(data)
     <section className="bg-zh-mist px-4 py-12 sm:px-6">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-2xl">
-          <h1 className="font-heading text-4xl tracking-tight text-zh-teal-deep sm:text-5xl">
+          <h1 className="font-heading text-4xl tracking-tight text-zh-blue-deep sm:text-5xl">
             Consultation
           </h1>
           <p className="mt-3 text-base leading-relaxed text-zh-ink/70 sm:text-lg">
@@ -158,7 +160,7 @@ console.log(data)
           ) : null}
 
           {!isLoading && !isError && doctors.length === 0 ? (
-            <p className="rounded-xl bg-white px-4 py-10 text-center text-sm text-zh-ink/65 ring-1 ring-zh-teal-deep/10">
+            <p className="rounded-xl bg-white px-4 py-10 text-center text-sm text-zh-ink/65 ring-1 ring-zh-blue-deep/10">
               No doctors available right now. Check back soon.
             </p>
           ) : null}

@@ -110,7 +110,7 @@ export const adminNavItems: NavSection[] = [
             },
             {
                 title: "Doctor Schedules",
-                href: "/admin/dashboard/doctor-schedules-managament",
+                href: "/admin/dashboard/doctor-schedules-management",
                 icon: "CalendarClock",
             },
             {

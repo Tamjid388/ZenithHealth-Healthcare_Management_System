@@ -1,10 +1,18 @@
-import { Fragment } from "react"
+import AdminDashboardContent from "@/components/modules/dashboard/admin/AdminDashboardContent";
+import { getDashboardData } from "@/services/dashboard.service";
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 
-function AdminDashboardPage() {
+
+async function AdminDashboardPage () {
+    const queryClient=new QueryClient();
+    await queryClient.prefetchQuery({
+        queryKey: ["admin-dashboard-data"],
+        queryFn: getDashboardData,
+    });
     return (
-        <Fragment>
-            <h1>AdminDashboardPage</h1>
-        </Fragment>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <AdminDashboardContent />
+        </HydrationBoundary>
     )
 }
 
