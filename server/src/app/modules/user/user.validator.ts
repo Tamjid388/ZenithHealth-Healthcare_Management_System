@@ -62,6 +62,26 @@ export const createDoctorZodSchema = z.object({
 
 
 
+export const updateMyProfileZodSchema = z.object({
+    name: z
+        .string()
+        .min(2, "Name must be at least 2 characters")
+        .max(50, "Name must be at most 50 characters")
+        .optional(),
+    profilePhoto: z.string().optional(),
+    contactNumber: z
+        .string()
+        .min(11, "Contact number must be 11 digits")
+        .max(14, "Contact number must be 14 digits")
+        .optional(),
+    address: z
+        .string()
+        .max(255, "Address must be at most 255 characters")
+        .optional(),
+}).refine((data) => Object.values(data).some((value) => value !== undefined && value !== ""), {
+    message: "Provide at least one field to update",
+})
+
 export const createAdminZodSchema = z.object({
     password: z
         .string()

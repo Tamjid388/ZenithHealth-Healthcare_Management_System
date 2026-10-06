@@ -1,4 +1,5 @@
 "use client"
+import { LogoutButton } from "@/components/modules/dashboard/LogoutButton";
 import { Separator } from "@/components/ui";
 import { NavSection } from "@/types/dashboard.types";
 import { UserInfo } from "@/types/user.types";
@@ -87,6 +88,8 @@ const DashboardSidebarContent = ({
               {userInfo.role.toLocaleLowerCase().replace("_", " ")}
             </p>
           </div>
+
+          <LogoutButton variant="sidebar" />
         </div>
       </div>
     </div>

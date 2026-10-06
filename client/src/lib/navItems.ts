@@ -32,7 +32,7 @@ export const getCommonNavItems = (role : TAuthUser) : NavSection[] => {
             items : [
                 {
                     title : "Change Password",
-                    href : "change-password",
+                    href : "/change-password",
                     icon : "Settings"
                 }
             ]

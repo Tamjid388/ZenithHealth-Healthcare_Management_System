@@ -23,6 +23,12 @@ export interface IDoctorPayload {
         userId?: string;
     }, specialities: string[]
 }
+export interface IUpdateMePayload {
+    name?: string;
+    profilePhoto?: string;
+    contactNumber?: string;
+    address?: string;
+}
 export interface IAdminPayload {
     password: string;
     admin: {

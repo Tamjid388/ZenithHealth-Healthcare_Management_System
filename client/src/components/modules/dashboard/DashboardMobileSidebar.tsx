@@ -1,6 +1,7 @@
 "use client"
 
 import { Separator } from "@/components/ui";
+import { LogoutButton } from "@/components/modules/dashboard/LogoutButton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SheetTitle } from "@/components/ui/sheet";
 import { getIconComponent } from "@/lib/iconMapper";
@@ -75,7 +76,7 @@ const DashboardMobileSidebar = ({dashboardHome, navItems, userInfo} : DashboardM
       </ScrollArea>
 
       {/* User Info */}
-      <div className="border-t px-6 py-6">
+      <div className="space-y-3 border-t px-6 py-6">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
           {/* if profile doesnt exist , use first letter of user name as profile photo like component */}
@@ -90,7 +91,11 @@ const DashboardMobileSidebar = ({dashboardHome, navItems, userInfo} : DashboardM
               {userInfo.role.toLocaleLowerCase().replace("_", " ")}
             </p>
           </div>
+
+          <LogoutButton variant="sidebar" />
         </div>
+
+        <LogoutButton variant="full" />
       </div>
     </div>
   );

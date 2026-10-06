@@ -1,6 +1,5 @@
 "use client";
 
-import { logoutAction } from "@/app/(commonLayout)/(auth)/logout/_action";
 import {
   Button,
   DropdownMenu,
@@ -11,11 +10,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui";
+import { LogoutButton } from "@/components/modules/dashboard/LogoutButton";
 import { UserInfo } from "@/types/user.types";
-import { useQueryClient } from "@tanstack/react-query";
-import { Key, LayoutDashboard, LogOut, User } from "lucide-react";
+import { Key, LayoutDashboard, User, UserRound } from "lucide-react";
 import Link from "next/link";
-import { unstable_rethrow } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface UserDropdownProps {
   userInfo: UserInfo;
@@ -23,27 +22,26 @@ interface UserDropdownProps {
 }
 
 const UserDropdown = ({ userInfo, dashboardHome }: UserDropdownProps) => {
-  const queryClient = useQueryClient();
-
-  const handleLogout = async () => {
-    queryClient.clear();
-    try {
-      await logoutAction();
-    } catch (error) {
-      unstable_rethrow(error);
-    }
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant={"outline"} size={"icon"} className="size-10 rounded-full" />
+          <Button
+            variant={"outline"}
+            size={"icon"}
+            aria-label={`Account menu for ${userInfo.name}`}
+            className="size-10 cursor-pointer overflow-hidden rounded-full p-0"
+          />
         }
       >
-        <span className="text-base font-semibold">
-          {userInfo.name.charAt(0).toUpperCase()}
-        </span>
+        <Avatar className="size-full">
+          {userInfo.image ? (
+            <AvatarImage src={userInfo.image} alt={userInfo.name} />
+          ) : null}
+          <AvatarFallback>
+            <UserRound className="size-5" aria-hidden="true" />
+          </AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align={"end"} className="w-56">
@@ -80,15 +78,7 @@ const UserDropdown = ({ userInfo, dashboardHome }: UserDropdownProps) => {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem
-          onClick={() => {
-            void handleLogout();
-          }}
-          className="cursor-pointer text-red-600"
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          Logout
-        </DropdownMenuItem>
+        <LogoutButton variant="menu-item" />
       </DropdownMenuContent>
     </DropdownMenu>
   );

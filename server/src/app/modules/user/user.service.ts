@@ -1,8 +1,9 @@
 import { Role, Speciality } from "../../../generated/prisma/client";
+import status from "http-status";
 import AppError from "../../errorHelpers/AppError";
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
-import { IAdminPayload, IDoctorPayload } from "./user.interface";
+import { IAdminPayload, IDoctorPayload, IUpdateMePayload } from "./user.interface";
 
 const createDoctor = async (payload: IDoctorPayload) => {
     const { password, doctor } = payload;
@@ -146,6 +147,96 @@ const createAdmin = async (payload: IAdminPayload) => {
     }
 }
 
+const updateMe = async (userId: string, payload: IUpdateMePayload) => {
+    const existingUser = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+    if (!existingUser) {
+        throw new AppError(status.NOT_FOUND, "User not found")
+    }
+    if (Object.keys(payload).length === 0) {
+        throw new AppError(status.BAD_REQUEST, "Provide at least one field to update")
+    }
+    const { name, profilePhoto, contactNumber, address } = payload
+
+    const userData: { name?: string; image?: string } = {
+        ...(name !== undefined ? { name } : {}),
+        ...(profilePhoto !== undefined ? { image: profilePhoto } : {}),
+    }
+    const profileData: { name?: string; profilePhoto?: string; contactNumber?: string; address?: string } = {
+        ...(name !== undefined ? { name } : {}),
+        ...(profilePhoto !== undefined ? { profilePhoto } : {}),
+        ...(contactNumber !== undefined ? { contactNumber } : {}),
+        ...(address !== undefined ? { address } : {}),
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+        if (Object.keys(userData).length > 0) {
+            await tx.user.update({
+                where: { id: userId },
+                data: userData,
+            })
+        }
+        // The role profile row may not exist (e.g. seeded SUPER_ADMIN
+        // without an admin row). Update it only when present — a missing
+        // row must not turn a User-level update into a P2025 crash.
+        if (existingUser.role === Role.PATIENT) {
+            const profileRow = await tx.patient.findUnique({
+                where: { userId },
+            })
+            if (profileRow && Object.keys(profileData).length > 0) {
+                await tx.patient.update({
+                    where: { userId },
+                    data: profileData,
+                })
+            } else if (!profileRow && Object.keys(userData).length === 0) {
+                throw new AppError(status.BAD_REQUEST, "Provide at least one field to update")
+            }
+        } else if (existingUser.role === Role.DOCTOR) {
+            const profileRow = await tx.doctor.findUnique({
+                where: { userId },
+            })
+            if (profileRow && Object.keys(profileData).length > 0) {
+                await tx.doctor.update({
+                    where: { userId },
+                    data: profileData,
+                })
+            } else if (!profileRow && Object.keys(userData).length === 0) {
+                throw new AppError(status.BAD_REQUEST, "Provide at least one field to update")
+            }
+        } else {
+            const profileRow = await tx.admin.findUnique({
+                where: { userId },
+            })
+            // Admin has no address column — only name, profilePhoto, contactNumber apply
+            const adminData: { name?: string; profilePhoto?: string; contactNumber?: string } = {
+                ...(name !== undefined ? { name } : {}),
+                ...(profilePhoto !== undefined ? { profilePhoto } : {}),
+                ...(contactNumber !== undefined ? { contactNumber } : {}),
+            }
+            if (profileRow && Object.keys(adminData).length > 0) {
+                await tx.admin.update({
+                    where: { userId },
+                    data: adminData,
+                })
+            } else if (!profileRow && Object.keys(userData).length === 0) {
+                throw new AppError(status.BAD_REQUEST, "Provide at least one field to update")
+            }
+        }
+        return tx.user.findUnique({
+            where: { id: userId },
+            include: {
+                patient: true,
+                doctor: true,
+                admins: true,
+            },
+        })
+    })
+    return result
+}
+
 export const UserService = {
-    createDoctor, createAdmin
+    createDoctor, createAdmin, updateMe
 }

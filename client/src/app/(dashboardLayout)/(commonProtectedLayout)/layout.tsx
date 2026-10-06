@@ -1,8 +1,4 @@
-
 import { Fragment } from "react";
-
-
-
 
 export default function CommonProtectedLayout({
   children,
@@ -11,7 +7,6 @@ export default function CommonProtectedLayout({
 }>) {
   return (
   <Fragment>
-    <h1 className="text-primary font-bold text-2xl">Common Protected Layout</h1>
     {children}
   </Fragment>
   );
