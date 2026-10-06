@@ -64,7 +64,15 @@ const getDoctorById = async (id: string) => {
                     schedule: true
                 }
             },
-            reviews: true
+            reviews: {
+                select: {
+                    id: true,
+                    rating: true,
+                    comment: true,
+                    createdAt: true,
+                    appointmentId: true,
+                }
+            }
         }
     })
     return doctor

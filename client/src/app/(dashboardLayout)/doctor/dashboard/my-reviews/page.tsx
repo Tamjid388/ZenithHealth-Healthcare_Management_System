@@ -1,10 +1,27 @@
-export default function DoctorReviewsPage() {
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+
+import { MyReviewsList } from "@/components/modules/doctor/myReviews/MyReviewsList";
+import { getMyReviews } from "@/services/reviews.service";
+import { DEFAULT_MY_REVIEWS_LIST_PARAMS } from "@/types/reviews.types";
+
+async function DoctorReviewsPage() {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["my-reviews", DEFAULT_MY_REVIEWS_LIST_PARAMS],
+    queryFn: () => getMyReviews(DEFAULT_MY_REVIEWS_LIST_PARAMS),
+    staleTime: 1000 * 30 * 3,
+  });
+
   return (
-    <div className="space-y-2 p-6">
-      <h1 className="text-2xl font-bold">My Reviews</h1>
-      <p className="text-sm text-muted-foreground">
-        Doctor reviews page is not implemented yet.
-      </p>
-    </div>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <MyReviewsList />
+    </HydrationBoundary>
   );
 }
+
+export default DoctorReviewsPage;
