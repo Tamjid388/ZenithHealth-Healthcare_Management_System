@@ -7,7 +7,7 @@ import HomeStats from "@/components/features/home/HomeStats";
 
 export default function CommonLayoutPage() {
   return (
-    <main>
+    <main className="overflow-x-clip">
       <HomeHero />
       <HomeFeatures />
       <HomeServices />

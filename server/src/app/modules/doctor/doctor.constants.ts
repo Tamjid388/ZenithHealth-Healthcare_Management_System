@@ -6,17 +6,13 @@ export const doctorSearchableFields = [
     "contactNumber",
     "address",
     "registrationNumber",
-    "experience",
-    "gender",
-    "appointmentFee",
     "qualifications",
     "currentWorkingPlace",
     "designation",
-    "specialities.specialty.title",
+    "doctorSpecialities.speciality.title",
+    "doctorSpecialities.speciality.description",
 ]
 export const doctorFilterableFields = [
-  "searchTerm",
-  "specialities",
   "gender",
   "experience",
   "appointmentFee",
@@ -24,8 +20,7 @@ export const doctorFilterableFields = [
   "currentWorkingPlace",
   "designation",
   "isDeleted",
-  "user.role",
-  "specialities.specialty.title",
+  "doctorSpecialities.speciality.title",
 ];
 
 export const doctorIncludeConfig: Partial<

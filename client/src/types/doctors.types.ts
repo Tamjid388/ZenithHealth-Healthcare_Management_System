@@ -17,6 +17,7 @@ export type DoctorSpeciality = {
   speciality: {
     id: string;
     title: string;
+    description?: string | null;
     icon?: string | null;
   };
 };
@@ -69,11 +70,14 @@ export type DoctorsQueryParams = {
   gender?: string;
   experience?: DoctorsRangeFilter;
   appointmentFee?: DoctorsRangeFilter;
+  include?: string;
+  "doctorSpecialities.speciality.title"?: string;
 };
 
 export const DEFAULT_DOCTORS_LIST_PARAMS: DoctorsQueryParams = {
   page: 1,
   limit: 10,
+  include: "doctorSpecialities",
 };
 
 export type Speciality = {

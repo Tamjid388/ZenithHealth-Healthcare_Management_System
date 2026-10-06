@@ -139,6 +139,12 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--zh-blue);
+    color: #f5fafe;
   }
 }
 
@@ -193,6 +199,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   .home-hero-kenburns,
   .home-reveal {
     animation: none;

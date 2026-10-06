@@ -6,7 +6,7 @@
     "dev": "cross-env NODE_OPTIONS=--disable-warning=DEP0169 next dev",
     "build": "next build",
     "start": "cross-env NODE_OPTIONS=--disable-warning=DEP0169 next start",
-    "dev:clean": "rm -rf .next && next dev",    
+    "dev:clean": "rm -rf .next && next dev",
     "lint": "eslint"
   },
   "dependencies": {
@@ -22,6 +22,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "framer-motion": "^14.0.0",
     "input-otp": "^1.4.2",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.577.0",
