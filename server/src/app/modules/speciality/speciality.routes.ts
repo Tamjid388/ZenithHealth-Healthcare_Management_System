@@ -20,5 +20,5 @@ router.get("/", checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.DOCTOR, Role.PATIEN
 
 
 router.delete("/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), SpecialityController.deleteSpecialityById);
-router.patch("/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), SpecialityController.updateSpeciality);
+router.patch("/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), multerUpload.single("file"), SpecialityController.updateSpeciality);
 export const SpecialityRoutes = router;

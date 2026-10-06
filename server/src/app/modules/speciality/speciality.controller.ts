@@ -48,7 +48,10 @@ const deleteSpecialityById = catchAsync(async (req: Request, res: Response) => {
 
 const updateSpeciality = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const data = req.body;
+  const data = {
+    ...req.body,
+    ...(req.file?.path ? { icon: req.file.path } : {}),
+  };
 
   const result = await SpecialityService.updateSpeciality(id as string, data);
 

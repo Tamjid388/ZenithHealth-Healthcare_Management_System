@@ -13,6 +13,7 @@
     "migrate": "prisma migrate dev",
     "studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
+    "seed:slots": "tsx prisma/seed-slots.ts",
     "setup": "prisma generate && prisma migrate dev",
     "stripe:webhook": "stripe listen --forward-to localhost:5000/webhook",
     "push": "prisma db push",
